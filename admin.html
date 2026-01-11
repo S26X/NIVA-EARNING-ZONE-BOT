@@ -3,7 +3,7 @@
 <head> 
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>NIVA EARNING ZONE BOT - ADMIN - S26X</title> 
+    <title>Niva Admin - Smart Panel</title> 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script> 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script> 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet"> 
@@ -24,8 +24,8 @@
 
         .main-card { background: var(--white); border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; } 
         
-        .tab-menu { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; } 
-        .tab { flex: 1; text-align: center; padding: 10px 5px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 10px; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 2px; } 
+        .tab-menu { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; overflow-x: auto; } 
+        .tab { flex: 1; text-align: center; padding: 10px 5px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 10px; color: #64748b; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 70px; } 
         .tab.active { background: #fff; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); } 
         .tab-count { font-size: 9px; padding: 1px 6px; border-radius: 10px; background: #e2e8f0; color: #475569; }
         .tab.active .tab-count { background: var(--primary); color: white; }
@@ -49,7 +49,6 @@
         .btn { border: none; padding: 10px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; } 
         input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px; box-sizing: border-box; }
         
-        /* Leaderboard Style */
         .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f1f5f9; }
 
         .switch { position: relative; display: inline-block; width: 34px; height: 18px; } 
@@ -97,20 +96,21 @@
             <div class="tab" id="tab-btn-rejected" onclick="filterTab('rejected', this)">
                 REJECTED <span class="tab-count" id="count-rejected">0</span>
             </div> 
+            <div class="tab" id="tab-btn-settings" onclick="filterTab('settings', this)">
+                ⚙️ SETTINGS
+            </div>
         </div> 
-        <div id="order-list"></div> 
-    </div> 
 
-    <button class="btn" style="background:#0f172a; color:white; margin-bottom:15px;" id="toggle-btn" onclick="toggleSettings()">⚙️ Bot Settings</button>
+        <div id="order-list-section">
+            <div id="order-list"></div> 
+        </div>
 
-    <div id="settings-section" style="display:none;">
-        <div class="main-card">
+        <div id="settings-section" style="display:none; border-top: 1px solid #f1f5f9; padding-top: 10px;">
             <span style="font-weight:800; display:block; margin-bottom:12px;">🏆 Leaderboard Management</span>
             <div id="leaderboard-list"></div>
             <button class="btn btn-danger" style="margin-top:10px; background:#fee2e2; color:var(--danger);" onclick="if(confirm('Clear all rankings?')) db.ref('leaderboard').remove()">Reset All Rankings</button>
-        </div>
+            <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
 
-        <div class="main-card">
             <span style="font-weight:800; display:block; margin-bottom:12px;">🪙 Coin Management</span>
             <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-bottom:15px;">
                 <input type="text" id="c-name" placeholder="Coin Name"> 
@@ -122,13 +122,12 @@
                 <button class="btn" style="background:var(--primary); color:white;" onclick="addCoin()">+ Add New Coin</button>
             </div>
             <div id="coin-list"></div>
-        </div>
+            <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
 
-        <div class="main-card">
             <span style="font-weight:800; display:block; margin-bottom:12px;">💳 Payments & Links</span>
             <input type="text" id="link-channel" placeholder="Channel Link" style="margin-bottom:10px;">
             <input type="text" id="link-help" placeholder="Support Link" style="margin-bottom:10px;">
-            <button class="btn btn-primary" style="background:var(--primary); color:white; margin-bottom:15px;" onclick="saveLinks()">Update Links</button>
+            <button class="btn" style="background:var(--primary); color:white; margin-bottom:15px;" onclick="saveLinks()">Update Links</button>
             
             <div style="display:flex; gap:8px;">
                 <input type="text" id="new-pay-method" placeholder="Method Name">
@@ -136,7 +135,7 @@
             </div>
             <div id="payment-list" style="margin-top:10px;"></div>
         </div>
-    </div>
+    </div> 
 </div> 
 
 <script> 
@@ -156,10 +155,22 @@ let currentTab = 'pending';
 
 function checkPass() { if(document.getElementById('admin-pass').value === "0957") { document.getElementById('lock-screen').style.display = 'none'; document.getElementById('admin-panel').style.display = 'block'; startSystem(); } else alert("Wrong PIN!"); }
 
-function toggleSettings() {
-    const sec = document.getElementById('settings-section');
-    sec.style.display = sec.style.display === 'block' ? 'none' : 'block';
-    document.getElementById('toggle-btn').innerHTML = sec.style.display === 'block' ? '❌ Close Settings' : '⚙️ Bot Settings';
+function filterTab(t, el) { 
+    currentTab = t; 
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); 
+    el.classList.add('active'); 
+    
+    const orderSection = document.getElementById('order-list-section');
+    const settingsSection = document.getElementById('settings-section');
+
+    if(t === 'settings') {
+        orderSection.style.display = 'none';
+        settingsSection.style.display = 'block';
+    } else {
+        orderSection.style.display = 'block';
+        settingsSection.style.display = 'none';
+        db.ref('orders').once('value', s => renderOrders(s.val() || {})); 
+    }
 }
 
 function startSystem() {
@@ -175,11 +186,13 @@ function startSystem() {
         document.getElementById('count-pending').innerText = counts.pending;
         document.getElementById('count-completed').innerText = counts.completed;
         document.getElementById('count-rejected').innerText = counts.rejected;
+        
         db.ref('stats_reset').on('value', rs => {
             const resetAmt = rs.val() ? rs.val().resetAmount : 0;
-            document.getElementById('s-money').innerText = (totalSales - resetAmt).toFixed(2) + "৳";
+            document.getElementById('s-money').innerText = Math.max(0, (totalSales - resetAmt)).toFixed(2) + "৳";
         });
-        renderOrders(orders);
+        
+        if(currentTab !== 'settings') renderOrders(orders);
     });
 
     db.ref('leaderboard').on('value', s => {
@@ -256,27 +269,21 @@ function addCoin() {
 function saveLinks() { db.ref('settings/links').set({ channel: document.getElementById('link-channel').value, help: document.getElementById('link-help').value }).then(() => alert("Saved!")); }
 db.ref('settings/links').on('value', snap => { if(snap.val()) { document.getElementById('link-channel').value = snap.val().channel || ""; document.getElementById('link-help').value = snap.val().help || ""; } });
 
-function filterTab(t, el) { currentTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); el.classList.add('active'); db.ref('orders').once('value', s => renderOrders(s.val() || {})); }
 function clearStatsOnly() { 
     if(confirm("আপনি কি নিশ্চিত যে সেলস জিরো করতে চান? এটি আগের সব Approved অর্ডারের হিসেব মুছে ফেলবে।")) { 
-        // ডাটাবেস থেকে সব অর্ডারের পেমেন্ট হিসেব জিরো করার জন্য আগের অর্ডার ডেটা মডিফাই করতে হয়। 
-        // সহজ উপায় হলো বর্তমান টোটাল সেলসকে 'stats_reset' এ সেভ করা।
         db.ref('orders').once('value', snap => {
             let totalToReset = 0;
             const orders = snap.val() || {};
             Object.values(orders).forEach(o => {
                 if(o.status === 'completed') totalToReset += parseFloat(o.payable || 0);
             });
-            
-            // নতুন করে জিরো থেকে শুরু করার জন্য রিসেট ভ্যালু আপডেট
-            db.ref('stats_reset').set({ 
-                resetAmount: totalToReset 
-            }).then(() => {
+            db.ref('stats_reset').set({ resetAmount: totalToReset }).then(() => {
                 alert("Sales has been reset to 0.00৳");
             });
         });
     } 
 }
+
 function addPayment() { const name = document.getElementById('new-pay-method').value; if(name) db.ref('paymentMethods/'+name).set({status: true}); }
 function renderPaymentList() { db.ref('paymentMethods').on('value', snap => { let html = ""; snap.forEach(p => { html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;"><span>${p.key}</span><div style="display:flex; gap:8px;"><label class="switch"><input type="checkbox" ${p.val().status?'checked':''} onchange="db.ref('paymentMethods/${p.key}').update({status:this.checked})"><span class="slider"></span></label><button style="border:none; color:red; background:none;" onclick="db.ref('paymentMethods/${p.key}').remove()">Del</button></div></div>`; }); document.getElementById('payment-list').innerHTML = html; }); }
 
