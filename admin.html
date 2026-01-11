@@ -257,11 +257,31 @@ function saveLinks() { db.ref('settings/links').set({ channel: document.getEleme
 db.ref('settings/links').on('value', snap => { if(snap.val()) { document.getElementById('link-channel').value = snap.val().channel || ""; document.getElementById('link-help').value = snap.val().help || ""; } });
 
 function filterTab(t, el) { currentTab = t; document.querySelectorAll('.tab').forEach(x => x.classList.remove('active')); el.classList.add('active'); db.ref('orders').once('value', s => renderOrders(s.val() || {})); }
-function clearStatsOnly() { if(confirm("Reset Stats?")) { db.ref('stats_reset').set({ resetAmount: parseFloat(document.getElementById('s-money').innerText) }); } }
+function clearStatsOnly() { 
+    if(confirm("আপনি কি নিশ্চিত যে সেলস জিরো করতে চান? এটি আগের সব Approved অর্ডারের হিসেব মুছে ফেলবে।")) { 
+        // ডাটাবেস থেকে সব অর্ডারের পেমেন্ট হিসেব জিরো করার জন্য আগের অর্ডার ডেটা মডিফাই করতে হয়। 
+        // সহজ উপায় হলো বর্তমান টোটাল সেলসকে 'stats_reset' এ সেভ করা।
+        db.ref('orders').once('value', snap => {
+            let totalToReset = 0;
+            const orders = snap.val() || {};
+            Object.values(orders).forEach(o => {
+                if(o.status === 'completed') totalToReset += parseFloat(o.payable || 0);
+            });
+            
+            // নতুন করে জিরো থেকে শুরু করার জন্য রিসেট ভ্যালু আপডেট
+            db.ref('stats_reset').set({ 
+                resetAmount: totalToReset 
+            }).then(() => {
+                alert("Sales has been reset to 0.00৳");
+            });
+        });
+    } 
+}
 function addPayment() { const name = document.getElementById('new-pay-method').value; if(name) db.ref('paymentMethods/'+name).set({status: true}); }
 function renderPaymentList() { db.ref('paymentMethods').on('value', snap => { let html = ""; snap.forEach(p => { html += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;"><span>${p.key}</span><div style="display:flex; gap:8px;"><label class="switch"><input type="checkbox" ${p.val().status?'checked':''} onchange="db.ref('paymentMethods/${p.key}').update({status:this.checked})"><span class="slider"></span></label><button style="border:none; color:red; background:none;" onclick="db.ref('paymentMethods/${p.key}').remove()">Del</button></div></div>`; }); document.getElementById('payment-list').innerHTML = html; }); }
 
 window.onload = () => { document.getElementById('lock-screen').style.display = 'flex'; };
 </script> 
 </body> 
+
 </html>
