@@ -616,7 +616,7 @@ function closeReviewModal() {
     /* --- LEADERBOARD & SALES LOGIC --- */
 
 // ১. লিডারবোর্ড ডাটা ফেচ এবং ডিলিট লজিক (fetchAdminSettingsData এর ভেতরে থাকবে)
-function fetchLeaderboardData() {
+function fetchLeaderboard() {
     db.ref('leaderboard').on('value', s => {
         let h = "";
         const users = [];
@@ -779,25 +779,37 @@ function renderAdminData() {
                 if (shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
                     html += `
-                    <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
-                        <div class="order-header">
-                            <b>@${o.user}</b>
-                            <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
-                        </div>
-                        <div class="order-grid">
-                            <div class="grid-item"><small>Pay To</small><b>${o.number} (${o.method})</b></div>
-                            <div class="grid-item"><small>Asset</small><b>${o.amt} ${o.coin}</b></div>
-                            <div class="grid-item"><small>Sender</small><b>${o.sender}</b></div>
-                            <div class="grid-item"><small>Payout</small><b style="color:#10b981;">${o.payable}৳</b></div>
-                        </div>
-                        <div style="display:flex; gap:10px; margin-top:15px;">
-                            ${o.status === 'pending' ? `
-                                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
-                                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
-                            ` : ''}
-                            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:45px; border-radius:12px; cursor:pointer;">🗑️</button>
-                        </div>
-                    </div>`;
+    <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
+        <div class="order-header">
+            <b>@${o.user}</b>
+            <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
+        </div>
+        <div class="order-grid">
+            <div class="grid-item"><small>COIN NAME</small><b>${o.coin}</b></div>
+            <div class="grid-item"><small>METHOD</small><b>${o.method}</b></div>
+            <div class="grid-item"><small>ASSET AMT</small><b>${o.amt}</b></div>
+            <div class="grid-item"><small>PAYOUT</small><b style="color:#10b981;">${o.payable}৳</b></div>
+        </div>
+
+        <div style="margin-top:12px; padding:10px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1;">
+            <div onclick="copyToClipboard('${o.number}')" style="cursor:pointer;">
+                <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">PAYMENT NUMBER (CLICK TO COPY)</small>
+                <b style="color:#2563eb; font-size:16px;">📱 ${o.number}</b>
+            </div>
+            <div style="margin-top:8px; border-top:1px solid #e2e8f0; padding-top:5px;">
+                <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">SENDER USERNAME</small>
+                <b>👤 ${o.sender}</b>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:15px;">
+            ${o.status === 'pending' ? `
+                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
+                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
+            ` : ''}
+            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:45px; border-radius:12px; cursor:pointer;">🗑️</button>
+        </div>
+    </div>`;
                 }
             });
             area.innerHTML = html || "<center style='padding:50px; color:#94a3b8;'>No Records Found</center>";
