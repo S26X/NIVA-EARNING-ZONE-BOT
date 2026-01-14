@@ -101,10 +101,10 @@
             transition: 0.3s;
         } 
         .adm-tab.active { 
-            background: #fff; 
-            color: #2563eb; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-        }
+    background: #ffffff !important; 
+    color: #2563eb !important; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+}
 
         /* Order Card - Grid Design */
         .adm-order-box { 
@@ -258,21 +258,37 @@
             <button onclick="closeAdminPanel()" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; font-weight:800;">EXIT</button>
         </div>
 
-        <div class="adm-container">
-    <div class="adm-stats-row">
-        <div class="adm-stat-box" style="border-bottom: 4px solid #f59e0b;">
-            <small>Total Pending Orders</small>
-            <h3 id="adm-total-pending" style="color: #f59e0b;">0</h3>
+ <div class="adm-container">
+    <div class="adm-stats-row" style="display: block; margin-bottom: 15px;">
+        <div class="adm-stat-box" style="padding: 20px; border-bottom: 4px solid #f59e0b; text-align: center;">
+            <small style="color: #64748b; font-weight: 800; text-transform: uppercase; font-size: 10px;">Total Pending Orders</small>
+            <h3 id="stat-pending-count" style="color: #f59e0b; font-size: 32px; margin: 10px 0 0;">0</h3>
         </div>
     </div>
 
-    <div class="adm-tab-menu">
-        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">Pending</div>
-        <div class="adm-tab" onclick="switchAdminTab('history', this)">History</div>
-        <div class="adm-tab" onclick="switchAdminTab('settings', this)">Settings</div>
+    <div class="adm-tab-menu" style="display: flex; background: #f1f5f9; border-radius: 15px; padding: 5px; gap: 5px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+        <div class="adm-tab active" onclick="filterTab('pending', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
+            Pending <span id="count-pending" style="background: #f59e0b; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
+        </div>
+        <div class="adm-tab" onclick="filterTab('completed', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
+            Approved <span id="count-completed" style="background: #10b981; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
+        </div>
+        <div class="adm-tab" onclick="filterTab('rejected', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
+            Rejected <span id="count-rejected" style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
+        </div>
+        <div class="adm-tab" onclick="filterTab('settings', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
+            Settings
+        </div>
     </div>
 
-    <div id="admin-dynamic-content"></div>
+    <div id="order-list-section">
+        <div id="order-list"></div>
+    </div>
+</div>
+
+        <div id="settings-section" style="display:none;">
+             </div>
+    </div> 
 </div>
         </div>
     </div>
@@ -356,49 +372,232 @@
     }
 
     /* --- USER HELPERS --- */
-    // ১. Global Variables (Code-er ekdom upore thakbe)
-let adminActiveTab = 'pending'; 
-let ordersListener = null;
-
-// ২. Tab Switching Function (Fixed)
-function switchAdminTab(t, el) {
-    // Purono listener stop kora jate data overlap na hoy
-    if (ordersListener) {
-        db.ref('orders').off('value');
-        ordersListener = null;
-    }
-
-    adminActiveTab = t;
-
-    // UI Active Class Update
-    document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
+    function switchAdminTab(tab, el) {
+    adminActiveTab = tab;
+    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
-
-    // Data render kora
     renderAdminData();
 }
 
-// ৩. Real-time Admin Logic
+    function openOrderModal(name, rate, tid) {
+        currentSelectedCoin = name; currentCoinRate = rate; currentCoinTID = tid;
+        document.getElementById('modal-coin-title').innerText = "Sell " + name;
+        document.getElementById('display-admin-id').innerText = tid;
+        document.getElementById('order-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('order-modal').classList.add('active'), 10);
+    }
+
+    function closeModal() {
+        document.getElementById('order-modal').classList.remove('active');
+        setTimeout(() => document.getElementById('order-modal').style.display = 'none', 400);
+    }
+
+    function calculatePayout() {
+        const qty = document.getElementById('input-qty').value;
+        const raw = (qty/1000) * currentCoinRate;
+        calculatedFinalPayout = raw > 5 ? (raw - 5).toFixed(2) : 0;
+        document.getElementById('display-final-payout').innerText = calculatedFinalPayout + " ৳";
+    }
+
+    function copyAdminID() {
+        navigator.clipboard.writeText(currentCoinTID);
+        alert("Admin ID Copied!");
+    }
+
+    // Function 1: Double Confirm Modal Open Kora
+function showConfirmation() {
+    const qty = document.getElementById('input-qty').value;
+    const sender = document.getElementById('input-sender').value;
+    const num = document.getElementById('input-number').value;
+    const method = document.getElementById('input-method').value;
+
+    if(qty < 5000 || !sender || !num) return alert("Fill all details! (Min 5000)");
+
+    // Review Modal-e user-er dewa data set kora
+    document.getElementById('r-coin').innerText = currentSelectedCoin;
+    document.getElementById('r-qty').innerText = qty;
+    document.getElementById('r-sender').innerText = sender;
+    document.getElementById('r-method').innerText = method;
+    document.getElementById('r-number').innerText = num;
+    document.getElementById('r-pay').innerText = calculatedFinalPayout + " ৳";
+
+    // Prothom modal bondho kore Review modal khola
+    closeModal(); 
+    const rm = document.getElementById('review-modal');
+    rm.style.display = 'flex'; 
+    setTimeout(() => rm.classList.add('active'), 10);
+}
+
+// Function 2: Final Submit (Firebase-e data pathano)
+function finalSubmitOrder() {
+    const orderId = Date.now();
+    const user = tg.initDataUnsafe.user || { id: 12345, username: "guest" };
+
+    db.ref('orders/' + orderId).set({
+        id: orderId, 
+        user: user.username || user.first_name || "guest",
+        coin: currentSelectedCoin, 
+        amt: document.getElementById('r-qty').innerText, 
+        payable: parseFloat(calculatedFinalPayout),
+        sender: document.getElementById('r-sender').innerText, 
+        number: document.getElementById('r-number').innerText, 
+        method: document.getElementById('r-method').innerText, 
+        status: 'pending',
+        targetId: currentCoinTID, 
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        alert("Order Submitted Successfully!");
+        location.reload();
+    });
+}
+
+// Review modal bondho korar extra function
+function closeReviewModal() {
+    document.getElementById('review-modal').classList.remove('active');
+    setTimeout(() => document.getElementById('review-modal').style.display = 'none', 400);
+}
+
+    function finalSubmitOrder() {
+    // Button Disable (Double click protection)
+    const btn = event.target;
+    btn.disabled = true;
+    btn.innerText = "Submitting...";
+
+    const orderId = Date.now();
+    const user = tg.initDataUnsafe.user || { id: 12345, username: "guest" };
+
+    db.ref('orders/' + orderId).set({
+        id: orderId, 
+        user: user.username || user.first_name || "guest",
+        coin: currentSelectedCoin, 
+        amt: document.getElementById('r-qty').innerText, 
+        payable: parseFloat(calculatedFinalPayout),
+        sender: document.getElementById('r-sender').innerText, 
+        number: document.getElementById('r-number').innerText, 
+        method: document.getElementById('r-method').innerText, 
+        status: 'pending',
+        targetId: currentCoinTID, 
+        timestamp: firebase.database.ServerValue.TIMESTAMP
+    }).then(() => {
+        // Form Auto Close Logic
+        closeReviewModal(); 
+        alert("Order Submitted Successfully! Check history for updates.");
+        location.reload(); // Page refresh hoye home-e chole jabe
+    }).catch(err => {
+        alert("Error: " + err.message);
+        btn.disabled = false;
+        btn.innerText = "Confirm & Submit ✅";
+    });
+}
+
+function closeReviewModal() {
+    const rm = document.getElementById('review-modal');
+    rm.classList.remove('active');
+    setTimeout(() => { rm.style.display = 'none'; }, 400);
+}
+
+    function fetchHistory() {
+        const user = tg.initDataUnsafe.user || { username: "guest" };
+        const uname = user.username || user.first_name || "guest";
+        db.ref('orders').orderByChild('user').equalTo(uname).on('value', s => {
+            let h = ""; let count = 0;
+            s.forEach(o => {
+                const d = o.val(); if(d.status === 'completed') count++;
+                const color = d.status==='pending'?'#f39c12':d.status==='completed'?'#2ecc71':'#e74c3c';
+                h += `<div class="action-card" style="flex-direction:column; align-items:flex-start; gap:8px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;"><b>${d.amt} ${d.coin}</b> <span style="color:${color}; font-weight:900;">${d.status.toUpperCase()}</span></div>
+                    <small>Payable: ${d.payable}৳ | To: ${d.targetId}</small>
+                </div>`;
+            });
+            document.getElementById('history-list-display').innerHTML = h || "<center>No History</center>";
+            document.getElementById('suc-count-display').innerText = count;
+        });
+    }
+
+    function fetchLeaderboard() {
+        db.ref('leaderboard').on('value', s => {
+            let h = ""; let arr = []; s.forEach(u => arr.push(u.val()));
+            arr.sort((a,b) => b.totalAmount - a.totalAmount).slice(0,15).forEach((u,i) => {
+                h += `<div class="action-card"><div><b>${i+1}. @${u.user}</b></div><b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b></div>`;
+            });
+            document.getElementById('rank-list-display').innerHTML = h || "<center>No Records</center>";
+        });
+    }
+
+    /* =========================================
+       ADMIN PANEL LOGIC (ALL FEATURES ADDED)
+       ========================================= */
+    function openAdminPanel() { document.getElementById('admin-master-ui').style.display = 'block'; }
+    function closeAdminPanel() { document.getElementById('admin-master-ui').style.display = 'none'; }
+
+    function verifyAdminPin() {
+        if(document.getElementById('adm-pin-input').value === "0957") {
+            document.getElementById('admin-lock-screen').style.display = 'none';
+            document.getElementById('admin-dashboard-view').style.display = 'block';
+            startAdminEngine();
+        } else { alert("Wrong PIN"); }
+    }
+
+   function startAdminEngine() {
+    // Real-time Orders Listener
+    db.ref('orders').on('value', snap => {
+        const orders = snap.val() || {};
+        let counts = { pending: 0, completed: 0, rejected: 0 };
+        
+        Object.values(orders).forEach(o => {
+            if(counts[o.status] !== undefined) counts[o.status]++;
+        });
+
+        // Top Stat Update (Pending only)
+        document.getElementById('adm-display-pending').innerText = counts.pending;
+        
+        // Tab Counters Update
+        document.getElementById('count-pending').innerText = counts.pending;
+        document.getElementById('count-completed').innerText = counts.completed;
+        document.getElementById('count-rejected').innerText = counts.rejected;
+        
+        // Instant List Refresh
+        if(adminActiveTab !== 'settings') renderAdminData();
+    });
+
+    // Leaderboard/User count listener (Optional)
+    db.ref('leaderboard').on('value', s => {
+        // Users counting logic ekhane thakbe kintu upore display hobe na
+    });
+}
+
+    function switchAdminTab(t, el) {
+        adminActiveTab = t;
+        document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        renderAdminData();
+    }
+
+    // Instant Data Sync-er jonno connection
+let ordersListener = null;
+
+// Real-time Pending Counter (Shob somoy active thakbe)
+db.ref('orders').on('value', s => {
+    const orders = s.val() || {};
+    const count = Object.values(orders).filter(o => o.status === 'pending').length;
+    document.getElementById('adm-total-pending').innerText = count;
+});
+
 function renderAdminData() {
     const area = document.getElementById('admin-dynamic-content');
-    if (!area) return;
+    
+    // Agon Listener bondho kora jate memory leak na hoy
+    if(ordersListener) db.ref('orders').off('value', ordersListener);
 
-    if (adminActiveTab === 'settings') {
-        // Settings-e thakle listener off rakha bhalo
-        if (ordersListener) db.ref('orders').off('value');
+    if(adminActiveTab === 'settings') {
+        // Apnar existing settings logic ekhane thakbe
         renderSettingsUI(area); 
     } else {
-        // Real-time listener active kora
+        // .on('value') use kora hoyeche instant UI update-er jonno
         ordersListener = db.ref('orders').on('value', s => {
             const orders = s.val() || {};
             let html = "";
             
-            // Pending shonkhya upore update kora (Instant)
-            const pCount = Object.values(orders).filter(o => o.status === 'pending').length;
-            const counterEl = document.getElementById('adm-total-pending');
-            if(counterEl) counterEl.innerText = pCount;
-
-            // List render kora (Latest order upore)
             Object.values(orders).reverse().forEach(o => {
                 const isHistory = (adminActiveTab === 'history');
                 const shouldShow = isHistory ? (o.status === 'completed' || o.status === 'rejected') : (o.status === 'pending');
@@ -412,18 +611,20 @@ function renderAdminData() {
                             <b style="font-size: 16px;">@${o.user}</b>
                             <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
                         </div>
+
                         <div class="order-grid">
                             <div class="grid-item"><small>Pay To</small><b>${o.number} (${o.method})</b></div>
                             <div class="grid-item"><small>Asset</small><b>${o.amt} ${o.coin}</b></div>
                             <div class="grid-item"><small>Sender</small><b>${o.sender}</b></div>
                             <div class="grid-item"><small>Payout</small><b style="color:#10b981;">${o.payable}৳</b></div>
                         </div>
+
                         <div style="display:flex; gap:10px; margin-top:15px;">
                             ${o.status === 'pending' ? `
                                 <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
                                 <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
                             ` : ''}
-                            <button onclick="if(confirm('Delete Order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:50px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center;">🗑️</button>
+                            <button onclick="if(confirm('Delete Order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:50px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
                         </div>
                     </div>`;
                 }
@@ -538,5 +739,4 @@ function renderAdminData() {
 </script>
 </body>
 </html>
-
 
