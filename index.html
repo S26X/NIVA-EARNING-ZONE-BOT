@@ -149,9 +149,15 @@
         </div>
     </div>
 
-    <div id="admin-shortcut">
-        <button class="admin-entry-btn" onclick="openAdminPanel()">🛠️ OPEN ADMIN DASHBOARD</button>
-    </div>
+    <div id="admin-shortcut" style="display:none; position:fixed; bottom:80px; right:20px; z-index:999;">
+    <button onclick="openAdminPanel()" style="background:#2563eb; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:800; box-shadow:0 4px 15px rgba(37,99,235,0.4);">
+        🛡️ Admin Panel
+    </button>
+</div>
+
+<div id="admin-master-ui" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:10000; overflow-y:auto;">
+    <button onclick="closeAdminPanel()" style="position:absolute; top:20px; right:20px;">Close ✖</button>
+</div>
 
     <div id="home-scr">
         <a href="#" id="chan-link" target="_blank" class="action-card">
@@ -316,27 +322,45 @@
     let adminActiveTab = 'pending';
 
     window.onload = () => {
-        tg.expand();
-        const user = tg.initDataUnsafe.user || { id: 12345, first_name: "Test User", username: "tester" };
-        
-        document.getElementById('user-display-name').innerText = user.first_name;
-        document.getElementById('user-display-tag').innerText = "@" + (user.username || "guest");
-        document.getElementById('user-pfp').src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
+    // Telegram WebApp expand kora
+    tg.expand();
 
-        if(ADMIN_LIST.includes(Number(user.id))) {
-            document.getElementById('admin-shortcut').style.display = 'block';
-        }
+    // User data fetch (Telegram theke ba test user)
+    const user = tg.initDataUnsafe.user || { id: 12345, first_name: "Test User", username: "tester" };
+    
+    // UI-te User Information set kora
+    const userNameEl = document.getElementById('user-display-name');
+    const userTagEl = document.getElementById('user-display-tag');
+    const userPfpEl = document.getElementById('user-pfp');
 
-        setTimeout(() => {
-            document.getElementById('loading').style.opacity = '0';
+    if(userNameEl) userNameEl.innerText = user.first_name;
+    if(userTagEl) userTagEl.innerText = "@" + (user.username || "guest");
+    if(userPfpEl) userPfpEl.src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
+
+    // --- ADMIN ACCESS CHECK ---
+    // Jodi user ID admin list-e thake, tobe shortcut button-ti dekhabe
+    const adminBtn = document.getElementById('admin-shortcut');
+    if(ADMIN_LIST.includes(Number(user.id))) {
+        if(adminBtn) adminBtn.style.display = 'block';
+    }
+
+    // Loading screen bondho kore main app interface show kora
+    setTimeout(() => {
+        const loadingScr = document.getElementById('loading');
+        if(loadingScr) {
+            loadingScr.style.opacity = '0';
             setTimeout(() => {
-                document.getElementById('loading').style.display = 'none';
+                loadingScr.style.display = 'none';
                 document.getElementById('user-app-interface').style.display = 'block';
             }, 500);
-        }, 2000);
+        }
+    }, 2000);
 
-        initializeDataFetching();
-    };
+    // Initial data fetch shuru kora
+    initializeDataFetching();
+    fetchHistory();
+    fetchLeaderboard();
+};
 
     function initializeDataFetching() {
         db.ref('marketConfig').on('value', snap => {
@@ -807,6 +831,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Jodi admin lock thake, tab-er initial state set kora
     adminActiveTab = 'pending';
 });
+
+/* --- ADMIN PANEL OPEN/CLOSE FUNCTIONS --- */
+
+function openAdminPanel() {
+    // Admin Master UI container-ti khola
+    const adminUI = document.getElementById('admin-master-ui');
+    if(adminUI) {
+        adminUI.style.display = 'block';
+        // Prothome PIN lock screen dekhabe
+        document.getElementById('admin-lock-screen').style.display = 'flex';
+        document.getElementById('admin-dashboard-view').style.display = 'none';
+    } else {
+        alert("Admin UI not found! HTML-e 'admin-master-ui' id thik moto ache ki na check korun.");
+    }
+}
+
+function closeAdminPanel() {
+    // Admin Master UI container-ti bondho kora
+    const adminUI = document.getElementById('admin-master-ui');
+    if(adminUI) {
+        adminUI.style.display = 'none';
+    }
+}
+
+
 </script>
 </body>
 </html>
