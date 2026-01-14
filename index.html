@@ -712,12 +712,18 @@ function closeReviewModal() {
         });
     }
 
-    function switchAdminTab(t, el) {
-    adminActiveTab = t; // Ekhon 'pending', 'history', ba 'settings' hobe
-    document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
-    el.classList.add('active');
+    function switchAdminTab(tab, element) {
+    adminActiveTab = tab;
     
-    // Tab onujayi data render kora holo
+    // Shob tab theke active class shoreye dewa
+    document.querySelectorAll('.adm-tab').forEach(el => {
+        el.classList.remove('active');
+    });
+    
+    // Click kora tab-e active class add kora
+    element.classList.add('active');
+    
+    // Data render kora
     renderAdminData();
 }
 
