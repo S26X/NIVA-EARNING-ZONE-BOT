@@ -3,190 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIVA EARNING ZONE</title>
+    <title>NIVA EARNING ZONE - PREMIUM MASTER</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;800;900&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- MERGED CSS FROM BOTH FILES --- */
-        :root { --primary: #22c55e; --bg: #f0f4f8; --card: #ffffff; --text: #1e293b; --danger: #ef4444; --blue: #2563eb; --warning: #f59e0b; }
+        /* =========================================
+           [SECTION 1] INDEX.HTML ORIGINAL STYLES
+           ========================================= */
+        :root { --primary: #22c55e; --bg: #f0f4f8; --card: #ffffff; --text: #1e293b; --p-blue: #2563eb; }
         * { box-sizing: border-box; font-family: 'Urbanist', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); margin: 0; padding: 15px; padding-bottom: 120px; color: var(--text); overflow-x: hidden; }
+        body { background: var(--bg); margin: 0; padding: 15px; padding-bottom: 120px; color: var(--text); }
 
-        /* LOADING STYLE (ORIGINAL) */
+        /* --- LOADING SCREEN (ORIGINAL) --- */
         #loading { position: fixed; inset: 0; background: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; }
         .light-box { position: relative; width: 130px; height: 130px; background: white; border-radius: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         .light-box::before { content: ''; position: absolute; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, #3b82f6); animation: rotate 1.5s linear infinite; }
         @keyframes rotate { 100% { transform: rotate(360deg); } }
         .inner-img { position: absolute; inset: 4px; background: white; border-radius: 32px; z-index: 2; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .inner-img img { width: 100%; height: 100%; object-fit: cover; }
+        .loading-title { margin-top: 25px; font-size: 22px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* PROFILE & BUTTONS */
+        /* --- USER UI COMPONENTS --- */
         .help-btn { position: fixed; top: 20px; right: 20px; width: 45px; height: 45px; background: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 22px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); z-index: 1000; border: 1.5px solid #e2e8f0; }
         .profile-card { background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 25px; padding: 22px; color: white; display: flex; align-items: center; margin-bottom: 15px; margin-top: 60px; }
         .user-avatar { width: 60px; height: 60px; border-radius: 18px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
-        
-        #admin-access-area { display: none; margin-bottom: 15px; }
-        .admin-entry-btn { width: 100%; padding: 16px; background: var(--danger); color: white; border: none; border-radius: 20px; font-weight: 900; box-shadow: 0 8px 20px rgba(239, 68, 68, 0.2); cursor: pointer; font-size: 14px; }
-
         .action-card { background: var(--card); border-radius: 24px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; }
-        .coin-card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1.5px solid #e2e8f0; position: relative; transition: 0.3s; }
+        .icon-box { width: 45px; height: 45px; border-radius: 15px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        
+        .coin-card { background: var(--card); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1.5px solid #e2e8f0; position: relative; }
         .coin-card.offline { opacity: 0.6; filter: grayscale(0.5); pointer-events: none; }
         .status-badge { position: absolute; top: 20px; right: 20px; padding: 5px 12px; border-radius: 10px; font-size: 10px; font-weight: 900; }
         .status-online { background: #dcfce7; color: #166534; }
+        .status-offline { background: #fee2e2; color: #991b1b; }
+        
+        .rate-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .rate-box { background: #f8fafc; padding: 12px; border-radius: 18px; text-align: center; border: 1px solid #f1f5f9; }
+        .rate-box small { font-size: 9px; color: #94a3b8; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .rate-val { font-size: 16px; font-weight: 800; }
 
-        /* MODALS & OVERLAYS */
+        /* --- MODALS & FORMS --- */
         .modal-mask { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(8px); display: none; align-items: flex-end; z-index: 2000; }
         .bottom-sheet { background: white; width: 100%; border-radius: 40px 40px 0 0; padding: 30px; transform: translateY(100%); transition: 0.4s; overflow-y: auto; max-height: 90vh; }
         .modal-mask.active .bottom-sheet { transform: translateY(0); }
-        .nav-dock { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 75px; background: white; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 999; }
-        .nav-tab { border: none; background: none; color: #94a3b8; font-size: 24px; width: 50px; height: 50px; border-radius: 18px; }
-        .nav-tab.active { background: #2563eb; color: white; }
+        .form-input { width: 100%; background: #f1f5f9; border: none; padding: 16px; border-radius: 20px; font-size: 16px; font-weight: 700; margin-bottom: 15px; outline: none; }
+        .btn-submit { background: #2563eb; color: white; border: none; width: 100%; padding: 18px; border-radius: 20px; font-size: 17px; font-weight: 800; cursor: pointer; }
+        
+        .confirm-box { background: white; width: 100%; max-width: 350px; border-radius: 32px; padding: 30px; position: relative; text-align: center; transform: scale(0.8); transition: 0.3s; }
+        .modal-mask.active .confirm-box { transform: scale(1); }
 
-        /* ADMIN PANEL UI STYLES */
-        #admin-panel-overlay { position: fixed; inset: 0; background: #f8fafc; z-index: 3000; display: none; overflow-y: auto; padding: 15px; }
-        .admin-card { background: white; padding: 15px; border-radius: 20px; border: 1px solid #e2e8f0; margin-bottom: 12px; }
-        .stat-box { background: white; padding: 12px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center; }
-        .tab-menu { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; overflow-x: auto; }
-        .a-tab { flex: 1; text-align: center; padding: 10px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 10px; color: #64748b; min-width: 80px; white-space: nowrap; }
-        .a-tab.active { background: #fff; color: var(--blue); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .order-box { border: 1px solid #e2e8f0; border-radius: 18px; padding: 12px; margin-bottom: 10px; background: #fff; border-left: 5px solid var(--blue); position: relative; }
-        input, select { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 8px; outline: none; }
-        .btn-blue { background: var(--blue); color: white; border: none; width: 100%; padding: 12px; border-radius: 12px; font-weight: 800; }
-        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; inset: 0; background-color: #e2e8f0; border-radius: 34px; transition: .4s; }
-        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .4s; }
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(16px); }
+        .nav-dock { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 75px; background: white; border-radius: 35px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 1001; }
+        .nav-tab { border: none; background: none; color: #94a3b8; font-size: 24px; width: 50px; height: 50px; border-radius: 18px; }
+        .nav-tab.active { background: var(--p-blue); color: white; }
+
+        /* SPECIAL ADMIN BUTTON */
+        #admin-shortcut { display: none; margin-bottom: 15px; padding: 0 5px; }
+        .admin-entry-btn { width: 100%; padding: 18px; background: #ef4444; color: white; border: none; border-radius: 22px; font-weight: 900; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); font-size: 14px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
+        /* =========================================
+           [SECTION 2] ADMIN.HTML ORIGINAL STYLES
+           ========================================= */
+        #admin-master-ui { position: fixed; inset: 0; background: #f8fafc; z-index: 100000; display: none; overflow-y: auto; font-family: 'Plus Jakarta Sans', sans-serif; }
+        #admin-lock-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 100001; flex-direction: column; color: white; }
+        
+        .adm-container { max-width: 500px; margin: 0 auto; padding: 15px; } 
+        .adm-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .adm-stat-box { background: white; padding: 12px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center; }
+        .adm-stat-box small { font-weight: 800; color: #64748b; font-size: 9px; display: block; }
+        .adm-stat-box h3 { margin: 5px 0 0; font-size: 16px; }
+
+        .adm-main-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; } 
+        .adm-tab-menu { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; overflow-x: auto; } 
+        .adm-tab { flex: 1; text-align: center; padding: 10px 5px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 10px; color: #64748b; } 
+        .adm-tab.active { background: #fff; color: var(--p-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.05); } 
+
+        .adm-order-box { position: relative; border: 1px solid #e2e8f0; border-radius: 18px; padding: 12px; margin-bottom: 10px; background: #fff; border-left: 5px solid var(--p-blue); } 
+        .adm-switch { position: relative; display: inline-block; width: 34px; height: 18px; } 
+        .adm-switch input { opacity: 0; width: 0; height: 0; } 
+        .adm-slider { position: absolute; inset: 0; background-color: #e2e8f0; border-radius: 34px; transition: .4s; }
+        .adm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .4s; }
+        input:checked + .adm-slider { background-color: #10b981; }
+        input:checked + .adm-slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
 
 <div id="loading">
     <div class="light-box"><div class="inner-img"><img src="https://i.ibb.co.com/wrsMwZLG/Logo.jpg"></div></div>
-    <div style="margin-top:25px; font-size:22px; font-weight:900; color:#1e293b; letter-spacing:1px;">NIVA EARNING ZONE</div>
+    <div class="loading-title">NIVA EARNING ZONE</div>
 </div>
 
-<div id="user-app" style="display:none;">
+<div id="user-app-interface" style="display:none;">
     <a href="#" id="help-link" class="help-btn" target="_blank">🎧</a>
+    
     <div class="profile-card">
-        <img src="" id="u-pfp" class="user-avatar">
-        <div style="flex:1; margin-left:15px;">
-            <h3 id="u-name" style="margin:0;">User</h3>
-            <p id="u-tag" style="margin:0; font-size:12px; opacity:0.8;">@username</p>
+        <img src="" id="user-pfp" class="user-avatar">
+        <div style="flex:1; margin-left:12px;">
+            <h3 id="user-display-name" style="margin:0;">User</h3>
+            <p id="user-display-tag" style="margin:0; font-size:12px; opacity:0.8;">@username</p>
         </div>
-        <div style="background:rgba(255,255,255,0.1); padding:10px 15px; border-radius:15px; text-align:center;">
+        <div style="background:rgba(255,255,255,0.1); padding:8px 12px; border-radius:15px; text-align:center;">
             <small style="font-size:8px; font-weight:900; display:block;">SUCCESS</small>
-            <b id="suc-count">0</b>
+            <b id="suc-count-display">0</b>
         </div>
     </div>
 
-    <div id="admin-access-area">
-        <button class="admin-entry-btn" onclick="openAdmin()">🛠️ OPEN ADMIN PANEL</button>
+    <div id="admin-shortcut">
+        <button class="admin-entry-btn" onclick="openAdminPanel()">🛠️ OPEN ADMIN DASHBOARD</button>
     </div>
 
     <div id="home-scr">
         <a href="#" id="chan-link" target="_blank" class="action-card">
             <div style="display:flex; align-items:center; gap:12px;">
-                <div style="font-size:20px;">📢</div>
+                <div class="icon-box">📢</div>
                 <div><b>Join Channel</b><br><small style="color:#64748b;">Updates & Proofs</small></div>
             </div>
             <span>❯</span>
         </a>
-        <div style="font-size:18px; font-weight:900; margin:20px 0 15px 5px;">Coin Market</div>
-        <div id="market-list"></div>
+        <div style="font-size:18px; font-weight:800; margin:20px 0 15px 5px;">Coin Market</div>
+        <div id="market-list-display"></div>
     </div>
 
-    <div id="history-scr" style="display:none; padding-top:10px;"><div id="history-list"></div></div>
-    <div id="rank-scr" style="display:none; padding-top:10px;"><div id="rank-list"></div></div>
+    <div id="history-scr" style="display:none; padding-top:10px;"><div id="history-list-display"></div></div>
+    <div id="rank-scr" style="display:none; padding-top:10px;"><div id="rank-list-display"></div></div>
 
     <nav class="nav-dock">
-        <button class="nav-tab active" onclick="tab('home-scr', this)">🏠</button>
-        <button class="nav-tab" onclick="tab('history-scr', this)">🕒</button>
-        <button class="nav-tab" onclick="tab('rank-scr', this)">🏆</button>
+        <button class="nav-tab active" onclick="switchTab('home-scr', this)">🏠</button>
+        <button class="nav-tab" onclick="switchTab('history-scr', this)">🕒</button>
+        <button class="nav-tab" onclick="switchTab('rank-scr', this)">🏆</button>
     </nav>
 </div>
 
 <div id="order-modal" class="modal-mask">
     <div class="bottom-sheet">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 id="m-title" style="margin:0; font-size:22px;">Sell Coin</h2>
-            <button onclick="closeM()" style="background:none; border:none; font-size:24px; color:#94a3b8;">✕</button>
+            <h2 id="modal-coin-title" style="margin:0; font-size:22px;">Sell Coin</h2>
+            <button onclick="closeModal()" style="background:none; border:none; font-size:24px; color:#94a3b8;">✕</button>
         </div>
         <div style="background:#fffbeb; border:1px dashed #fcd34d; padding:15px; border-radius:20px; text-align:center; margin-bottom:20px;">
             <small style="font-weight:800; color:#b45309;">SEND COINS TO THIS ID</small>
-            <div id="admin-target-id" style="font-size:20px; font-weight:900; margin:5px 0; color:#1e293b;">---</div>
-            <button onclick="copyID()" style="background:white; border:1px solid #fcd34d; padding:5px 15px; border-radius:12px; font-size:11px; font-weight:800;">COPY ID</button>
+            <div id="display-admin-id" style="font-size:20px; font-weight:900; margin:5px 0; color:#1e293b;">---</div>
+            <button onclick="copyAdminID()" style="background:white; border:1px solid #fcd34d; padding:5px 15px; border-radius:12px; font-size:11px; font-weight:800;">COPY ID</button>
         </div>
-        <input type="number" id="c-qty" placeholder="Amount (Min 5000)" oninput="calcOrder()">
-        <input type="text" id="c-sender" placeholder="SENDER USERNAME -">
+        <input type="number" id="input-qty" class="form-input" placeholder="Amount (Min 5000)" oninput="calculatePayout()">
+        <input type="text" id="input-sender" class="form-input" placeholder="SENDER USERNAME -">
         <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:12px;">
-            <select id="m-select"></select>
-            <input type="text" id="m-num" placeholder="Payment Number">
+            <select id="input-method" class="form-input"></select>
+            <input type="text" id="input-number" class="form-input" placeholder="Payment Number">
         </div>
         <div style="display:flex; justify-content:space-between; align-items:center; padding:15px 0;">
             <span style="font-weight:700; color:#64748b;">You Get:</span>
             <div style="text-align:right;">
                 <small style="color:#ef4444; font-weight:800; display:block;">FEE: -5৳</small>
-                <b id="c-res" style="font-size:28px; color:#22c55e;">0.00 ৳</b>
+                <b id="display-final-payout" style="font-size:28px; color:#22c55e;">0.00 ৳</b>
             </div>
         </div>
-        <button class="btn-blue" style="padding:18px; border-radius:20px;" onclick="submitOrder()">Submit Order →</button>
+        <button class="btn-submit" onclick="showConfirmation()">Next Step →</button>
     </div>
 </div>
 
-<div id="admin-panel-overlay">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h2 style="margin:0; font-weight:900; color:var(--danger);">ADMIN CONTROL</h2>
-        <button onclick="closeAdmin()" style="border:none; background:#eee; padding:10px 15px; border-radius:12px; font-weight:800;">EXIT</button>
-    </div>
-
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
-        <div class="stat-box">
-            <small style="font-weight:800; font-size:10px; color:#64748b;">TOTAL SALES</small>
-            <h3 id="a-total-sales" style="margin:5px 0 0;">0৳</h3>
-        </div>
-        <div class="stat-box">
-            <small style="font-weight:800; font-size:10px; color:#64748b;">PENDING</small>
-            <h3 id="a-pending-count" style="margin:5px 0 0; color:var(--warning);">0</h3>
+<div id="confirm-modal" class="modal-mask">
+    <div class="confirm-box" style="margin: auto;">
+        <div style="font-size:40px; margin-bottom:15px;">✔️</div>
+        <div style="font-size:20px; font-weight:800; margin-bottom:20px;">Confirm Order?</div>
+        <div id="confirm-details" style="text-align:left; font-size:14px; margin-bottom:20px;"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+            <button onclick="hideConfirmation()" style="background:#f1f5f9; border:none; padding:15px; border-radius:15px; font-weight:700;">Cancel</button>
+            <button onclick="finalSubmitOrder()" style="background:#22c55e; color:white; border:none; padding:15px; border-radius:15px; font-weight:700;">Submit</button>
         </div>
     </div>
+</div>
 
-    <div class="tab-menu">
-        <div class="a-tab active" onclick="aTab('pending', this)">PENDING</div>
-        <div class="a-tab" onclick="aTab('completed', this)">APPROVED</div>
-        <div class="a-tab" onclick="aTab('settings', this)">SETTINGS</div>
+<div id="admin-master-ui">
+    <div id="admin-lock-screen">
+        <div style="background:white; padding:30px; border-radius:25px; text-align:center; width:300px; color:#1e293b;">
+            <h3 style="margin-bottom:20px;">Admin Access</h3>
+            <input type="password" id="adm-pin-input" placeholder="ENTER PIN" style="width:100%; padding:15px; text-align:center; border-radius:15px; border:1.5px solid #ddd; margin-bottom:15px; font-weight:900;">
+            <button onclick="verifyAdminPin()" style="width:100%; background:#2563eb; color:white; padding:15px; border:none; border-radius:15px; font-weight:800;">UNLOCK PANEL</button>
+            <button onclick="closeAdminPanel()" style="margin-top:10px; background:none; border:none; color:#64748b; font-weight:700;">Back to App</button>
+        </div>
     </div>
 
-    <div id="admin-orders-list"></div>
+    <div id="admin-dashboard-view" style="display:none;">
+        <div style="padding:20px; display:flex; justify-content:space-between; align-items:center; background:white; border-bottom:1.5px solid #e2e8f0; position:sticky; top:0; z-index:100;">
+            <h2 style="margin:0; color:#ef4444; font-weight:900; font-size:18px;">ADMIN PANEL</h2>
+            <button onclick="closeAdminPanel()" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; font-weight:800;">EXIT</button>
+        </div>
 
-    <div id="admin-settings" style="display:none;">
-        <div class="admin-card">
-            <span style="font-weight:800; display:block; margin-bottom:10px;">🪙 Coin Management</span>
-            <input type="text" id="new-c-name" placeholder="Coin Name">
-            <input type="text" id="new-c-tid" placeholder="Transfer ID">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <input type="number" id="new-c-ur" placeholder="User Rate">
-                <input type="number" id="new-c-ar" placeholder="Admin Rate">
+        <div class="adm-container">
+            <div class="adm-stats-row">
+                <div class="adm-stat-box" style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="text-align:left;"><small>TOTAL SALES</small><h3 id="adm-display-sales">0.00৳</h3></div>
+                    <button onclick="resetSalesStats()" style="background:none; border:none; font-size:20px;">🧹</button>
+                </div>
+                <div class="adm-stat-box">
+                    <small>PENDING</small>
+                    <h3 id="adm-display-pending" style="color:#f59e0b;">0</h3>
+                </div>
+                <div class="adm-stat-box">
+                    <small>TOTAL USERS</small>
+                    <h3 id="adm-display-users" style="color:#2563eb;">0</h3>
+                </div>
             </div>
-            <button class="btn-blue" onclick="addCoin()">+ Add Coin</button>
-            <div id="a-coin-list" style="margin-top:15px;"></div>
-        </div>
-        <div class="admin-card">
-            <span style="font-weight:800; display:block; margin-bottom:10px;">💳 Payment Methods</span>
-            <div style="display:flex; gap:8px;">
-                <input type="text" id="new-p-name" placeholder="Method Name">
-                <button class="btn-blue" style="width:80px;" onclick="addPayment()">Add</button>
+
+            <div class="adm-main-card">
+                <div class="adm-tab-menu">
+                    <div class="adm-tab active" onclick="switchAdminTab('pending', this)">PENDING</div>
+                    <div class="adm-tab" onclick="switchAdminTab('completed', this)">APPROVED</div>
+                    <div class="adm-tab" onclick="switchAdminTab('settings', this)">SETTINGS</div>
+                </div>
+                <div id="admin-dynamic-content"></div>
             </div>
-            <div id="a-pay-list" style="margin-top:10px;"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIG (NIVA BUYER ZONE) ---
+    /* =========================================
+       CORE CONFIGURATION & INITIALIZATION
+       ========================================= */
     const firebaseConfig = {
         apiKey: "AIzaSyCF_xNU6f3Xkor0s5MndZMe_vL-bz_T2GA",
         authDomain: "niva-buyer-zone.firebaseapp.com",
@@ -198,219 +237,302 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    // --- TELEGRAM & ADMINS ---
     const tg = window.Telegram.WebApp;
-    const user = tg.initDataUnsafe.user || { id: 0, first_name: "Guest", username: "user" };
-    const ADMIN_IDS = [7940769450, 8505710811];
+    const ADMIN_LIST = [7940769450, 8505710811];
 
-    let selC = "", selR = 0, currentTID = "", finalP = 0, adminCurrentTab = 'pending';
+    let currentSelectedCoin = "", currentCoinRate = 0, currentCoinTID = "", calculatedFinalPayout = 0;
+    let adminActiveTab = 'pending';
 
     window.onload = () => {
-        // Load User Profile
-        document.getElementById('u-name').innerText = user.first_name;
-        document.getElementById('u-tag').innerText = "@" + (user.username || "no_user");
-        document.getElementById('u-pfp').src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
+        tg.expand();
+        const user = tg.initDataUnsafe.user || { id: 0, first_name: "Guest", username: "user" };
+        
+        // Profile Setup
+        document.getElementById('user-display-name').innerText = user.first_name;
+        document.getElementById('user-display-tag').innerText = "@" + (user.username || "guest");
+        document.getElementById('user-pfp').src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
 
-        // Check Admin
-        if(ADMIN_IDS.includes(user.id)) {
-            document.getElementById('admin-access-area').style.display = 'block';
+        // Admin Entry Verification
+        if(ADMIN_LIST.includes(Number(user.id))) {
+            document.getElementById('admin-shortcut').style.display = 'block';
         }
 
-        // Timer for Loading
+        // Loading Controller
         setTimeout(() => {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('user-app').style.display = 'block';
+            document.getElementById('loading').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('user-app-interface').style.display = 'block';
+            }, 500);
         }, 2500);
 
-        loadMarket();
-        loadPaymentMethods();
+        initializeDataFetching();
     };
 
-    // --- USER FUNCTIONS ---
-    function tab(id, btn) {
-        document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
-        btn.classList.add('active');
-        ['home-scr', 'history-scr', 'rank-scr'].forEach(s => document.getElementById(s).style.display='none');
-        document.getElementById(id).style.display = 'block';
-        if(id === 'history-scr') loadHistory();
-        if(id === 'rank-scr') loadRanking();
-    }
-
-    function loadMarket() {
+    /* =========================================
+       USER APP FUNCTIONALITY
+       ========================================= */
+    function initializeDataFetching() {
+        // Market List
         db.ref('marketConfig').on('value', snap => {
-            let h = "";
+            let html = "";
             snap.forEach(c => {
                 const v = c.val(); const on = v.status !== false;
-                h += `<div class="coin-card ${!on?'offline':''}" onclick="${on?`openM('${c.key}',${v.userRate},'${v.transferId}')`:''}">
+                html += `<div class="coin-card ${!on?'offline':''}" onclick="${on?`openOrderModal('${c.key}',${v.userRate},'${v.transferId}')`:''}">
                     <div class="status-badge ${on?'status-online':'status-offline'}">${on?'● Online':'● Offline'}</div>
                     <div style="display:flex; align-items:center; gap:15px;">
-                        <div style="width:45px; height:45px; background:#f1f5f9; border-radius:15px; display:flex; align-items:center; justify-content:center; font-size:20px;">💰</div>
+                        <div class="icon-box">💰</div>
                         <div><b style="font-size:18px;">${c.key}</b><br><small style="color:#64748b; font-weight:800;">MARKET RATE</small></div>
                     </div>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px;">
-                        <div style="background:#f8fafc; padding:12px; border-radius:18px; text-align:center; border:1px solid #f1f5f9;"><small style="font-size:9px; color:#94a3b8; font-weight:800;">User Rate</small><div style="font-weight:800;">${v.userRate}৳</div></div>
-                        <div style="background:#f8fafc; padding:12px; border-radius:18px; text-align:center; border:1px solid #f1f5f9;"><small style="font-size:9px; color:#94a3b8; font-weight:800;">Admin Rate</small><div style="font-weight:800;">${v.adminRate}৳</div></div>
+                    <div class="rate-grid">
+                        <div class="rate-box"><small>User Rate</small><div class="rate-val">${v.userRate}৳</div></div>
+                        <div class="rate-box"><small>Admin Rate</small><div class="rate-val">${v.adminRate}৳</div></div>
                     </div>
                 </div>`;
             });
-            document.getElementById('market-list').innerHTML = h;
+            document.getElementById('market-list-display').innerHTML = html;
         });
+
+        // External Links
         db.ref('settings/links').on('value', s => {
             if(s.val()){
                 document.getElementById('chan-link').href = s.val().channel;
                 document.getElementById('help-link').href = s.val().help;
             }
         });
+
+        // Payment Methods
+        db.ref('paymentMethods').on('value', s => {
+            let o = ""; s.forEach(p => { if(p.val().status) o += `<option value="${p.key}">${p.key}</option>`; });
+            document.getElementById('input-method').innerHTML = o || "<option>Method</option>";
+        });
     }
 
-    function openM(n,r,t) {
-        selC=n; selR=r; currentTID=t;
-        document.getElementById('m-title').innerText = "Sell " + n;
-        document.getElementById('admin-target-id').innerText = t;
+    function switchTab(id, btn) {
+        document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+        btn.classList.add('active');
+        ['home-scr','history-scr','rank-scr'].forEach(s => document.getElementById(s).style.display='none');
+        document.getElementById(id).style.display='block';
+        if(id === 'history-scr') fetchHistory();
+        if(id === 'rank-scr') fetchLeaderboard();
+    }
+
+    function openOrderModal(name, rate, tid) {
+        currentSelectedCoin = name; currentCoinRate = rate; currentCoinTID = tid;
+        document.getElementById('modal-coin-title').innerText = "Sell " + name;
+        document.getElementById('display-admin-id').innerText = tid;
         document.getElementById('order-modal').style.display = 'flex';
         setTimeout(() => document.getElementById('order-modal').classList.add('active'), 10);
     }
-    function closeM() { document.getElementById('order-modal').classList.remove('active'); setTimeout(() => document.getElementById('order-modal').style.display = 'none', 400); }
-    
-    function calcOrder() {
-        const q = document.getElementById('c-qty').value;
-        const raw = (q/1000)*selR;
-        finalP = raw > 5 ? (raw - 5).toFixed(2) : 0;
-        document.getElementById('c-res').innerText = finalP + " ৳";
+
+    function closeModal() {
+        document.getElementById('order-modal').classList.remove('active');
+        setTimeout(() => document.getElementById('order-modal').style.display = 'none', 400);
     }
 
-    function copyID() { navigator.clipboard.writeText(currentTID); tg.HapticFeedback.notificationOccurred('success'); alert("ID Copied!"); }
+    function calculatePayout() {
+        const qty = document.getElementById('input-qty').value;
+        const raw = (qty/1000) * currentCoinRate;
+        calculatedFinalPayout = raw > 5 ? (raw - 5).toFixed(2) : 0;
+        document.getElementById('display-final-payout').innerText = calculatedFinalPayout + " ৳";
+    }
 
-    function submitOrder() {
-        const q = document.getElementById('c-qty').value, s = document.getElementById('c-sender').value, n = document.getElementById('m-num').value, m = document.getElementById('m-select').value;
-        if(q < 5000 || !s || !n) return alert("Fill all fields correctly!");
-        const id = Date.now();
-        db.ref('orders/' + id).set({
-            id: id, user: (user.username || user.first_name), coin: selC, amt: q, payable: finalP, sender: s, number: n, method: m, status: 'pending', targetId: currentTID, timestamp: firebase.database.ServerValue.TIMESTAMP
+    function copyAdminID() {
+        navigator.clipboard.writeText(currentCoinTID);
+        tg.HapticFeedback.notificationOccurred('success');
+        alert("Admin ID Copied!");
+    }
+
+    function showConfirmation() {
+        const qty = document.getElementById('input-qty').value;
+        const num = document.getElementById('input-number').value;
+        const sender = document.getElementById('input-sender').value;
+        if(qty < 5000 || !num || !sender) return alert("Please fill all fields correctly!");
+        
+        document.getElementById('confirm-details').innerHTML = `
+            <b>Coin:</b> ${qty} ${currentSelectedCoin}<br>
+            <b>Method:</b> ${document.getElementById('input-method').value}<br>
+            <b>Number:</b> ${num}<br>
+            <b>Payout:</b> ${calculatedFinalPayout}৳
+        `;
+        document.getElementById('confirm-modal').style.display = 'flex';
+        setTimeout(() => document.getElementById('confirm-modal').classList.add('active'), 10);
+    }
+
+    function hideConfirmation() {
+        document.getElementById('confirm-modal').classList.remove('active');
+        setTimeout(() => document.getElementById('confirm-modal').style.display = 'none', 300);
+    }
+
+    function finalSubmitOrder() {
+        const qty = document.getElementById('input-qty').value;
+        const sender = document.getElementById('input-sender').value;
+        const num = document.getElementById('input-number').value;
+        const method = document.getElementById('input-method').value;
+        const orderId = Date.now();
+        const user = tg.initDataUnsafe.user || { username: "guest" };
+
+        db.ref('orders/' + orderId).set({
+            id: orderId, user: user.username || user.first_name || "guest",
+            coin: currentSelectedCoin, amt: qty, payable: calculatedFinalPayout,
+            sender: sender, number: num, method: method, status: 'pending',
+            targetId: currentCoinTID, timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            alert("Order Submitted!"); closeM(); tab('history-scr', document.querySelectorAll('.nav-tab')[1]);
+            tg.HapticFeedback.notificationOccurred('success');
+            alert("Order Submitted Successfully!");
+            hideConfirmation(); closeModal();
+            switchTab('history-scr', document.querySelectorAll('.nav-tab')[1]);
         });
     }
 
-    function loadHistory() {
-        const curU = (user.username || user.first_name);
-        db.ref('orders').orderByChild('user').equalTo(curU).on('value', s => {
+    function fetchHistory() {
+        const user = tg.initDataUnsafe.user || { username: "guest" };
+        const uname = user.username || user.first_name || "guest";
+        db.ref('orders').orderByChild('user').equalTo(uname).on('value', s => {
             let h = ""; let count = 0;
             s.forEach(o => {
                 const d = o.val(); if(d.status === 'completed') count++;
-                const clr = d.status==='pending'?'#f39c12':d.status==='completed'?'#2ecc71':'#e74c3c';
+                const color = d.status==='pending'?'#f39c12':d.status==='completed'?'#2ecc71':'#e74c3c';
                 h += `<div class="action-card" style="flex-direction:column; align-items:flex-start; gap:8px;">
-                    <div style="display:flex; justify-content:space-between; width:100%;"><b>${d.amt} ${d.coin}</b> <span style="color:${clr}; font-weight:800; font-size:11px;">${d.status.toUpperCase()}</span></div>
-                    <small style="color:#64748b;">Payable: ${d.payable}৳ | Via: ${d.method}</small>
+                    <div style="display:flex; justify-content:space-between; width:100%;"><b>${d.amt} ${d.coin}</b> <span style="color:${color}; font-weight:900;">${d.status.toUpperCase()}</span></div>
+                    <small>Payable: ${d.payable}৳ | To: ${d.targetId}</small>
                 </div>`;
             });
-            document.getElementById('history-list').innerHTML = h || "<center style='padding:20px;'>No History</center>";
-            document.getElementById('suc-count').innerText = count;
+            document.getElementById('history-list-display').innerHTML = h || "<center>No History</center>";
+            document.getElementById('suc-count-display').innerText = count;
         });
     }
 
-    function loadRanking() {
+    function fetchLeaderboard() {
         db.ref('leaderboard').on('value', s => {
-            let arr = []; s.forEach(u => arr.push(u.val()));
-            arr.sort((a,b) => b.totalAmount - a.totalAmount);
-            let h = "";
-            arr.slice(0, 15).forEach((u, i) => {
-                h += `<div class="action-card"><div style="display:flex; align-items:center; gap:12px;"><b style="width:20px;">${i+1}</b><b>@${u.user}</b></div><b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b></div>`;
+            let h = ""; let arr = []; s.forEach(u => arr.push(u.val()));
+            arr.sort((a,b) => b.totalAmount - a.totalAmount).slice(0,15).forEach((u,i) => {
+                h += `<div class="action-card"><div><b>${i+1}. @${u.user}</b></div><b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b></div>`;
             });
-            document.getElementById('rank-list').innerHTML = h;
+            document.getElementById('rank-list-display').innerHTML = h || "<center>No Records</center>";
         });
     }
 
-    // --- ADMIN FUNCTIONS ---
-    function openAdmin() { document.getElementById('admin-panel-overlay').style.display = 'block'; loadAdminData(); }
-    function closeAdmin() { document.getElementById('admin-panel-overlay').style.display = 'none'; }
+    /* =========================================
+       ADMIN MASTER FUNCTIONALITY
+       ========================================= */
+    function openAdminPanel() { document.getElementById('admin-master-ui').style.display = 'block'; }
+    function closeAdminPanel() { document.getElementById('admin-master-ui').style.display = 'none'; }
 
-    function aTab(t, el) {
-        adminCurrentTab = t;
-        document.querySelectorAll('.a-tab').forEach(x => x.classList.remove('active'));
-        el.classList.add('active');
-        document.getElementById('admin-orders-list').style.display = t === 'settings' ? 'none' : 'block';
-        document.getElementById('admin-settings').style.display = t === 'settings' ? 'block' : 'none';
-        loadAdminData();
+    function verifyAdminPin() {
+        if(document.getElementById('adm-pin-input').value === "0957") {
+            document.getElementById('admin-lock-screen').style.display = 'none';
+            document.getElementById('admin-dashboard-view').style.display = 'block';
+            startAdminEngine();
+        } else { alert("Access Denied: Wrong PIN"); }
     }
 
-    function loadAdminData() {
+    function startAdminEngine() {
+        // Orders Monitor
         db.ref('orders').on('value', snap => {
-            let h = ""; let total = 0; let pend = 0;
-            snap.forEach(o => {
-                const d = o.val();
-                if(d.status === 'completed') total += parseFloat(d.payable);
-                if(d.status === 'pending') pend++;
-                
-                if(d.status === adminCurrentTab) {
-                    h += `<div class="order-box">
-                        <div style="display:flex; justify-content:space-between;"><b>@${d.user}</b> <small>#${d.id.toString().slice(-4)}</small></div>
-                        <div style="font-size:11px; margin:8px 0; color:#64748b;">Pay ${d.payable}৳ to ${d.number} (${d.method})<br>Coin: ${d.amt} ${d.coin} | Sender: ${d.sender}</div>
-                        ${adminCurrentTab === 'pending' ? `<div style="display:flex; gap:8px;"><button class="btn-blue" style="background:var(--primary); flex:2;" onclick="updOrd('${d.id}','completed','${d.user}',${d.payable})">Approve</button><button class="btn-blue" style="background:var(--danger); flex:1;" onclick="updOrd('${d.id}','rejected')">Reject</button></div>` : ''}
-                    </div>`;
-                }
+            const orders = snap.val() || {};
+            let pendingCount = 0; let totalSales = 0;
+            Object.values(orders).forEach(o => {
+                if(o.status === 'pending') pendingCount++;
+                if(o.status === 'completed') totalSales += parseFloat(o.payable || 0);
             });
-            document.getElementById('a-total-sales').innerText = total.toFixed(2) + "৳";
-            document.getElementById('a-pending-count').innerText = pend;
-            if(adminCurrentTab !== 'settings') document.getElementById('admin-orders-list').innerHTML = h || "<center>Empty</center>";
+            document.getElementById('adm-display-pending').innerText = pendingCount;
+            
+            db.ref('stats_reset').on('value', rs => {
+                const resetAmt = rs.val() ? rs.val().resetAmount : 0;
+                document.getElementById('adm-display-sales').innerText = Math.max(0, (totalSales - resetAmt)).toFixed(2) + "৳";
+            });
+            if(adminActiveTab !== 'settings') renderAdminData();
         });
 
-        // Load coins in admin settings
-        db.ref('marketConfig').on('value', s => {
-            let h = "";
-            s.forEach(c => {
+        // User Monitor
+        db.ref('leaderboard').on('value', s => {
+            document.getElementById('adm-display-users').innerText = Object.keys(s.val() || {}).length;
+        });
+    }
+
+    function switchAdminTab(t, el) {
+        adminActiveTab = t;
+        document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+        renderAdminData();
+    }
+
+    function renderAdminData() {
+        const area = document.getElementById('admin-dynamic-content');
+        if(adminActiveTab === 'settings') {
+            area.innerHTML = `
+                <div style="padding-top:10px;">
+                    <b style="font-size:12px; color:#64748b;">COIN & MARKET SETTINGS</b>
+                    <div id="adm-market-config-list" style="margin-top:10px;"></div>
+                    <hr>
+                    <button onclick="resetSalesStats()" style="width:100%; padding:15px; background:#fee2e2; color:#ef4444; border:none; border-radius:15px; font-weight:800;">RESET SALES TOTAL</button>
+                </div>`;
+            fetchAdminMarketSettings();
+        } else {
+            db.ref('orders').once('value', s => {
+                const orders = s.val() || {};
+                let html = "";
+                Object.values(orders).reverse().forEach(o => {
+                    if(o.status === adminActiveTab) {
+                        html += `
+                        <div class="adm-order-box" style="border-left-color: ${adminActiveTab==='pending'?'#f59e0b':'#10b981'}">
+                            <div style="display:flex; justify-content:space-between;"><b>@${o.user}</b> <small>#${o.id.toString().slice(-4)}</small></div>
+                            <div style="font-size:11px; margin:5px 0;">Item: ${o.amt} ${o.coin} | Pay: ${o.payable}৳</div>
+                            <div style="font-size:11px; color:#64748b;">Method: ${o.method} (${o.number})</div>
+                            ${adminActiveTab === 'pending' ? `
+                            <div style="display:flex; gap:5px; margin-top:10px;">
+                                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">APPROVE</button>
+                                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">REJECT</button>
+                            </div>` : ''}
+                        </div>`;
+                    }
+                });
+                area.innerHTML = html || "<center style='padding:30px; color:#94a3b8;'>No Orders Found</center>";
+            });
+        }
+    }
+
+    function fetchAdminMarketSettings() {
+        db.ref('marketConfig').once('value', snap => {
+            let html = "";
+            snap.forEach(c => {
                 const v = c.val();
-                h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-                    <span><b>${c.key}</b> (${v.userRate}৳)</span>
-                    <button onclick="db.ref('marketConfig/${c.key}').remove()" style="color:red; background:none; border:none;">Del</button>
+                html += `
+                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:15px; padding:12px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <b>💎 ${c.key}</b>
+                        <label class="adm-switch"><input type="checkbox" ${v.status?'checked':''} onchange="db.ref('marketConfig/${c.key}').update({status:this.checked})"><span class="adm-slider"></span></label>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">
+                        <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">USER</small><br><input type="number" value="${v.userRate}" onchange="db.ref('marketConfig/${c.key}').update({userRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
+                        <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">ADMIN</small><br><input type="number" value="${v.adminRate}" onchange="db.ref('marketConfig/${c.key}').update({adminRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
+                    </div>
                 </div>`;
             });
-            document.getElementById('a-coin-list').innerHTML = h;
-        });
-
-        // Load payments
-        db.ref('paymentMethods').on('value', s => {
-            let h = "";
-            s.forEach(p => {
-                h += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
-                    <span>${p.key}</span>
-                    <button onclick="db.ref('paymentMethods/${p.key}').remove()" style="color:red; background:none; border:none;">Del</button>
-                </div>`;
-            });
-            document.getElementById('a-pay-list').innerHTML = h;
+            document.getElementById('adm-market-config-list').innerHTML = html;
         });
     }
 
-    function updOrd(id, s, u, p) {
-        db.ref('orders/' + id).update({ status: s });
-        if(s === 'completed' && u) {
-            db.ref('leaderboard/' + u).once('value', sn => {
-                let d = sn.val() || { totalAmount: 0, user: u };
-                db.ref('leaderboard/' + u).update({ user: u, totalAmount: (parseFloat(d.totalAmount) + p) });
+    function updateOrderStatus(id, status, user, payable) {
+        db.ref('orders/'+id).update({status: status});
+        if(status === 'completed' && user) {
+            db.ref('leaderboard/'+user).once('value', sn => {
+                let data = sn.val() || { totalAmount: 0, user: user };
+                db.ref('leaderboard/'+user).update({ totalAmount: (parseFloat(data.totalAmount) + payable) });
             });
         }
     }
 
-    function addCoin() {
-        const n = document.getElementById('new-c-name').value, tid = document.getElementById('new-c-tid').value, ur = document.getElementById('new-c-ur').value, ar = document.getElementById('new-c-ar').value;
-        if(n && tid && ur) {
-            db.ref('marketConfig/' + n).set({ transferId: tid, userRate: parseFloat(ur), adminRate: parseFloat(ar), status: true }).then(() => alert("Coin Added"));
+    function resetSalesStats() {
+        if(confirm("Are you sure? This will reset the visible sales total to 0.00৳")) {
+            db.ref('orders').once('value', s => {
+                let total = 0;
+                Object.values(s.val() || {}).forEach(o => { if(o.status === 'completed') total += parseFloat(o.payable || 0); });
+                db.ref('stats_reset').set({ resetAmount: total }).then(() => alert("Stats Reset Successful!"));
+            });
         }
     }
-
-    function addPayment() {
-        const n = document.getElementById('new-p-name').value;
-        if(n) db.ref('paymentMethods/' + n).set({ status: true });
-    }
-
-    function loadPaymentMethods() {
-        db.ref('paymentMethods').on('value', s => {
-            let o = ""; s.forEach(p => { if(p.val().status) o += `<option value="${p.key}">${p.key}</option>`; });
-            document.getElementById('m-select').innerHTML = o || "<option>Method</option>";
-        });
-    }
-
 </script>
 </body>
 </html>
