@@ -69,7 +69,7 @@
         
         .adm-container { max-width: 500px; margin: 0 auto; padding: 15px; } 
 
-        /* Statistics Row - (Total User Sorano Hoyeche) */
+        /* Statistics Row - Single Box (Total User Removed) */
         .adm-stats-row { display: block; margin-bottom: 15px; }
         .adm-stat-box { 
             background: white; padding: 20px; border-radius: 20px; 
@@ -79,22 +79,34 @@
         .adm-stat-box small { font-weight: 800; color: #64748b; font-size: 10px; display: block; text-transform: uppercase; letter-spacing: 1px;}
         .adm-stat-box h3 { margin: 5px 0 0; font-size: 28px; color: #1e293b; }
 
-        /* Vertical Tab Menu - (Ektar niche arekti) */
-        .adm-tab-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } 
+        /* Modern Horizontal Tab Menu (Pashapashi) */
+        .adm-tab-menu { 
+            display: flex; 
+            background: #f1f5f9; 
+            border-radius: 15px; 
+            padding: 5px; 
+            margin-bottom: 20px; 
+            gap: 5px;
+            border: 1px solid #e2e8f0;
+        } 
         .adm-tab { 
-            background: white; padding: 16px 20px; font-size: 14px; 
-            font-weight: 800; cursor: pointer; border-radius: 18px; 
-            color: #64748b; border: 1px solid #e2e8f0;
-            display: flex; justify-content: space-between; align-items: center;
+            flex: 1; 
+            text-align: center; 
+            padding: 12px 5px; 
+            font-size: 11px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            border-radius: 12px; 
+            color: #64748b; 
             transition: 0.3s;
         } 
         .adm-tab.active { 
-            background: #fff; color: #2563eb; border-color: #2563eb; 
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); 
+            background: #fff; 
+            color: #2563eb; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
         }
-        .adm-tab.active::after { content: "❯"; font-size: 12px; }
 
-        /* Order Card - (Grid Design Exactly Like Photo) */
+        /* Order Card - Grid Design */
         .adm-order-box { 
             background: white; border-radius: 20px; padding: 18px; 
             margin-bottom: 15px; border: 1px solid #f1f5f9; 
@@ -110,18 +122,9 @@
 
         .status-badge { font-size: 10px; font-weight: 900; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; }
 
-        /* Settings & Forms */
+        /* Forms & Buttons */
         .adm-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; font-size: 13px; background: #fcfcfc; }
         .adm-btn { border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 15px; margin-bottom: 8px; border: 1px solid #f1f5f9; }
-
-        /* Switches */
-        .adm-switch { position: relative; display: inline-block; width: 34px; height: 18px; } 
-        .adm-switch input { opacity: 0; width: 0; height: 0; } 
-        .adm-slider { position: absolute; inset: 0; background-color: #e2e8f0; border-radius: 34px; transition: .4s; }
-        .adm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .4s; }
-        input:checked + .adm-slider { background-color: #10b981; }
-        input:checked + .adm-slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
@@ -264,9 +267,9 @@
     </div>
 
     <div class="adm-tab-menu">
-        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">🕒 PENDING</div>
-        <div class="adm-tab" onclick="switchAdminTab('history', this)">📜 HISTORY</div>
-        <div class="adm-tab" onclick="switchAdminTab('settings', this)">⚙️ SETTINGS</div>
+        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">Pending</div>
+        <div class="adm-tab" onclick="switchAdminTab('history', this)">History</div>
+        <div class="adm-tab" onclick="switchAdminTab('settings', this)">Settings</div>
     </div>
 
     <div id="admin-dynamic-content"></div>
