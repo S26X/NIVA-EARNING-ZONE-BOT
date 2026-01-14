@@ -611,24 +611,47 @@ function closeReviewModal() {
     });
 }
 
-    function fetchLeaderboard() {
+    /* --- LEADERBOARD & SALES LOGIC --- */
+
+// ১. লিডারবোর্ড ডাটা ফেচ এবং ডিলিট লজিক (fetchAdminSettingsData এর ভেতরে থাকবে)
+function fetchLeaderboardData() {
     db.ref('leaderboard').on('value', s => {
-        let h = ""; 
-        let arr = []; 
+        let h = "";
+        const users = [];
         
-        s.forEach(u => arr.push(u.val()));
-        
-        // Beshi taka theke kom taka onujayi sort kora
-        arr.sort((a,b) => b.totalAmount - a.totalAmount).slice(0,15).forEach((u, i) => {
-            h += `<div class="action-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:12px;">
-                    <div><b>${i+1}. @${u.user}</b></div>
-                    <b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b>
-                  </div>`;
+        // ডাটা অ্যারেতে নিয়ে সর্টিং (বেশি টাকা উপরে থাকবে)
+        s.forEach(u => {
+            users.push(u.val());
+        });
+        users.sort((a, b) => b.totalAmount - a.totalAmount);
+
+        users.forEach(d => {
+            h += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 10px;">
+                <div>
+                    <b style="color: #1e293b;">@${d.user}</b><br>
+                    <small style="color:#10b981; font-weight: 800;">${parseFloat(d.totalAmount).toFixed(2)}৳</small>
+                </div>
+                <button onclick="deleteLdrUser('${d.user}')" style="border:none; color:#ef4444; background:#fee2e2; padding: 6px 12px; border-radius: 8px; font-weight:800; cursor:pointer;">DEL</button>
+            </div>`;
         });
         
-        const rankContainer = document.getElementById('rank-list-display');
-        if(rankContainer) rankContainer.innerHTML = h || "<center style='padding:20px; color:#94a3b8;'>No Records Yet</center>";
+        const lbArea = document.getElementById('adm-leaderboard-list');
+        if(lbArea) lbArea.innerHTML = h || "<center style='color:#94a3b8; padding:20px;'>No Top Earners Yet</center>";
     });
+}
+
+// ২. লিডারবোর্ড ইউজার ডিলিট ফাংশন
+function deleteLdrUser(username) {
+    if(confirm(`Remove @${username} from leaderboard?`)) {
+        db.ref('leaderboard/' + username).remove()
+        .then(() => {
+            alert("✅ User removed!");
+        })
+        .catch(err => {
+            alert("❌ Error: " + err.message);
+        });
+    }
 }
 
     /* =========================================
