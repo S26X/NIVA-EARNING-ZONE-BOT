@@ -778,8 +778,7 @@ function renderAdminData() {
 
                 if (shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
-                    // Render function-er bhetore thik ei jaygatuku replace korun
-html += `
+                    html += `
     <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
         <div class="order-header">
             <b>@${o.user}</b>
@@ -810,21 +809,24 @@ html += `
             <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:45px; border-radius:12px; cursor:pointer;">🗑️</button>
         </div>
     </div>`;
-
-function copyToClipboard(text) {
-    if (!text) return;
-    const el = document.createElement('textarea');
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    try {
-        document.execCommand('copy');
-        alert("✅ Number Copied: " + text);
-    } catch (err) {
-        console.error('Copy failed');
+                }
+            });
+            area.innerHTML = html || "<center style='padding:50px; color:#94a3b8;'>No Records Found</center>";
+        });
     }
-    document.body.removeChild(el);
 }
+
+function copyToClipboard(val) {
+    if (!val) return;
+    const dummy = document.createElement("textarea");
+    document.body.appendChild(dummy);
+    dummy.value = val;
+    dummy.select();
+    document.execCommand("copy");
+    document.body.removeChild(dummy);
+    alert("✅ Number Copied: " + val);
+}
+
 
 function renderSettingsUI(container) {
     container.innerHTML = `
