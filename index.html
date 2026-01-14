@@ -630,26 +630,25 @@ function fetchLeaderboard() {
     const rankDisplay = document.getElementById('rank-list-display');
     if (!rankDisplay) return;
 
-    // Firebase এর 'leaderboard' নোড থেকে ডাটা পড়া
     db.ref('leaderboard').on('value', snap => {
         let users = [];
         snap.forEach(u => {
             let data = u.val();
-            // ডাটা সঠিক থাকলে অ্যারেতে পুশ করা
-            if(data.user && data.totalAmount !== undefined) {
-                users.push(data);
-            }
+            if(data.user) users.push(data);
         });
 
-        // সর্টিং: যার টোটাল অ্যামাউন্ট বেশি সে উপরে থাকবে
+        // ১. Sorting: Beshi amount upore
         users.sort((a, b) => (parseFloat(b.totalAmount) || 0) - (parseFloat(a.totalAmount) || 0));
 
-        let html = "<h3 style='margin: 15px 5px;'>🏆 Top Earners</h3>";
+        // ২. Top 10 Filter: Shudhu prothom 10 jonke nibe
+        const top10 = users.slice(0, 10);
+
+        let html = "<h3 style='margin: 15px 5px;'>🏆 Top 10 Earners</h3>";
         
-        if (users.length === 0) {
-            html += "<p style='text-align:center; padding:20px; color:#94a3b8;'>No earners found yet.</p>";
+        if (top10.length === 0) {
+            html += "<p style='text-align:center; padding:20px; color:#94a3b8;'>No earners yet.</p>";
         } else {
-            users.forEach((d, i) => {
+            top10.forEach((d, i) => {
                 let medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
                 html += `
                 <div class="action-card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
@@ -812,34 +811,47 @@ function renderAdminData() {
                 if (shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
                     html += `
-    <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
-        <div class="order-header">
-            <b>@${o.user}</b>
-            <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
+    <div class="adm-order-box" style="border-left: 5px solid ${statusColor}; padding: 12px; margin-bottom: 12px; border-radius: 15px; background: #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <div class="order-header" style="margin-bottom: 8px;">
+            <b style="font-size: 14px;">@${o.user}</b>
+            <span class="status-badge" style="background:${statusColor}15; color:${statusColor}; font-size: 10px; padding: 4px 8px; border-radius: 8px;">${o.status.toUpperCase()}</span>
         </div>
-        <div class="order-grid">
-            <div class="grid-item"><small>COIN</small><b>${o.coin}</b></div>
-            <div class="grid-item"><small>METHOD</small><b>${o.method}</b></div>
-            <div class="grid-item"><small>ASSET</small><b>${o.amt}</b></div>
-            <div class="grid-item"><small>PAYOUT</small><b style="color:#10b981;">${o.payable}৳</b></div>
+        
+        <div class="order-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px;">
+            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
+                <small style="font-size: 9px; color: #64748b; font-weight: 700;">COIN</small>
+                <b style="display: block; font-size: 12px;">${o.coin}</b>
+            </div>
+            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
+                <small style="font-size: 9px; color: #64748b; font-weight: 700;">METHOD</small>
+                <b style="display: block; font-size: 12px;">${o.method}</b>
+            </div>
+            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
+                <small style="font-size: 9px; color: #64748b; font-weight: 700;">ASSET</small>
+                <b style="display: block; font-size: 12px;">${o.amt}</b>
+            </div>
+            <div class="grid-item" style="background: #ecfdf5; padding: 6px; border-radius: 8px;">
+                <small style="font-size: 9px; color: #059669; font-weight: 700;">PAYOUT</small>
+                <b style="display: block; font-size: 12px; color: #10b981;">${o.payable}৳</b>
+            </div>
         </div>
 
-        <div onclick="copyToClipboard('${o.number}')" style="margin-top:12px; padding:10px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1; cursor:pointer;">
-            <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">PAYMENT NUMBER (TAP TO COPY)</small>
-            <b style="color:#2563eb; font-size:16px;">📱 ${o.number}</b>
+        <div onclick="copyToClipboard('${o.number}')" style="padding: 8px; background: #f1f5f9; border-radius: 10px; border: 1px dashed #cbd5e1; cursor: pointer; margin-bottom: 8px;">
+            <small style="color: #64748b; display: block; font-size: 9px; font-weight: 800; text-transform: uppercase;">Tap to copy</small>
+            <b style="color: #2563eb; font-size: 13px;">📱 ${o.number}</b>
         </div>
 
-        <div style="margin-top:8px; padding-left:5px;">
-            <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">SENDER USERNAME</small>
-            <b>👤 ${o.sender}</b>
+        <div style="padding-left: 4px; margin-bottom: 10px;">
+            <small style="color: #94a3b8; font-size: 9px; font-weight: 700;">SENDER:</small>
+            <b style="font-size: 11px;"> ${o.sender}</b>
         </div>
 
-        <div style="display:flex; gap:10px; margin-top:15px;">
+        <div style="display: flex; gap: 8px;">
             ${o.status === 'pending' ? `
-                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
-                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
+                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex: 2; background: #10b981; color: white; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;">APPROVE</button>
+                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex: 1; background: #fee2e2; color: #ef4444; border: none; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;">REJECT</button>
             ` : ''}
-            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:45px; border-radius:12px; cursor:pointer;">🗑️</button>
+            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background: #f1f5f9; border: none; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;">🗑️</button>
         </div>
     </div>`;
                 }
@@ -977,14 +989,21 @@ function updateAdmLinks() {
 }
 
 function updateOrderStatus(id, status, user, payable) {
-    db.ref('orders/'+id).update({status: status}).then(() => {
-        if(status === 'completed' && user) {
-            db.ref('leaderboard/'+user).once('value', sn => {
+    db.ref('orders/' + id).update({ status: status }).then(() => {
+        // Order completed holei leaderboard-e add hobe
+        if (status === 'completed' && user && user !== 'undefined') {
+            const ldrRef = db.ref('leaderboard/' + user);
+            ldrRef.once('value', sn => {
                 let d = sn.val() || { totalAmount: 0, user: user };
-                db.ref('leaderboard/'+user).update({ totalAmount: (parseFloat(d.totalAmount) + payable) });
+                let newTotal = (parseFloat(d.totalAmount) || 0) + (parseFloat(payable) || 0);
+                
+                ldrRef.update({ 
+                    totalAmount: newTotal, 
+                    user: user 
+                });
             });
         }
-        alert("Success!");
+        alert("Order " + status + "!");
     });
 }
 
