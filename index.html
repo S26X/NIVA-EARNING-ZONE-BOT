@@ -256,7 +256,7 @@
         
         <div style="background: #f1f5f9; border-radius: 25px; padding: 20px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
             <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-                <span style="color: #64748b;">Asset:</span> 
+                <span style="color: #64748b;">COIN:</span> 
                 <b id="r-coin" style="color:#2563eb; background: #dbeafe; padding: 2px 10px; border-radius: 10px;">---</b>
             </div>
             <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
@@ -747,6 +747,10 @@ db.ref('orders').on('value', s => {
    COMBINED ADMIN ENGINE (UI + ALL FEATURES)
    ========================================= */
 
+/* =========================================
+   FIXED ADMIN ENGINE & ACTIONS
+   ========================================= */
+
 function renderAdminData() {
     const area = document.getElementById('admin-dynamic-content');
     if (!area) return;
@@ -754,10 +758,8 @@ function renderAdminData() {
     if(ordersListener) db.ref('orders').off('value', ordersListener);
 
     if(adminActiveTab === 'settings') {
-        // সেটিংস UI রেন্ডার করা এবং ডেটা ফেচ করা
         renderSettingsUI(area); 
     } else {
-        // পেন্ডিং এবং হিস্ট্রি লজিক
         ordersListener = db.ref('orders').on('value', s => {
             const orders = s.val() || {};
             let html = "";
@@ -797,45 +799,36 @@ function renderAdminData() {
 function renderSettingsUI(container) {
     container.innerHTML = `
         <div class="settings-card" style="background:white; padding:15px; border-radius:20px; border:1px solid #e2e8f0;">
-            
             <h4 style="margin-bottom:15px;">💎 Market Rates & Config</h4>
             <div id="adm-market-config-list">Loading market data...</div>
-            
             <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-bottom:20px;">
-                <small style="font-weight:800; display:block; margin-bottom:8px;">+ ADD NEW ASSET</small>
+                <small style="font-weight:800; display:block; margin-bottom:8px;">+ ADD NEW COIN</small>
                 <input type="text" id="new-c-name" class="adm-input" placeholder="Coin Name">
                 <input type="text" id="new-c-tid" class="adm-input" placeholder="Address/UID">
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                     <input type="number" id="new-c-user" class="adm-input" placeholder="User Rate">
                     <input type="number" id="new-c-admin" class="adm-input" placeholder="Admin Rate">
                 </div>
-                <button onclick="addNewCoin()" class="adm-btn" style="background:#10b981; color:white;">ADD ASSET</button>
+                <button onclick="addNewCoin()" class="adm-btn" style="background:#10b981; color:white;">ADD COIN</button>
             </div>
-
             <h4 style="margin-bottom:15px;">💳 Payment Methods</h4>
             <div id="adm-payment-list"></div>
             <div style="display:flex; gap:8px; margin-top:10px;">
                 <input type="text" id="new-pay-name" class="adm-input" placeholder="New Method" style="margin:0;">
                 <button onclick="addNewPayment()" class="adm-btn" style="width:80px; background:#1e293b; color:white;">ADD</button>
             </div>
-
             <h4 style="margin-top:25px; margin-bottom:15px;">🔗 Social Links</h4>
             <input type="text" id="adm-link-chan" class="adm-input" placeholder="Channel Link">
             <input type="text" id="adm-link-help" class="adm-input" placeholder="Support Link">
             <button onclick="updateAdmLinks()" class="adm-btn" style="background:#2563eb; color:white;">UPDATE LINKS</button>
-
-            <h4 style="margin-top:25px; margin-bottom:15px;">🏆 Top Earners (Leaderboard)</h4>
+            <h4 style="margin-top:25px; margin-bottom:15px;">🏆 Leaderboard</h4>
             <div id="adm-leaderboard-list" style="background:#f8fafc; border-radius:12px; padding:10px; max-height:200px; overflow-y:auto;"></div>
-
             <button onclick="resetSalesStats()" class="adm-btn" style="background:#ef4444; color:white; margin-top:30px;">⚠️ RESET SALES STATS</button>
-        </div>
-    `;
-    // আপনার অরিজিনাল ডাটা ফেচ ফাংশনটি কল করা
+        </div>`;
     fetchAdminSettingsData();
 }
 
 function fetchAdminSettingsData() {
-    // ১. লিডারবোর্ড লিস্ট (আপনার লজিক অনুযায়ী)
     db.ref('leaderboard').on('value', s => {
         let h = "";
         s.forEach(u => {
@@ -849,7 +842,6 @@ function fetchAdminSettingsData() {
         if(lbArea) lbArea.innerHTML = h || "No Users";
     });
 
-    // ২. মার্কেট লিস্ট (আপনার লজিক অনুযায়ী)
     db.ref('marketConfig').on('value', snap => {
         let html = "";
         snap.forEach(c => {
@@ -872,15 +864,12 @@ function fetchAdminSettingsData() {
         if(mcArea) mcArea.innerHTML = html;
     });
 
-    // ৩. লিংক লোড
     db.ref('settings/links').once('value', s => {
-        if(s.val()) {
-            if(document.getElementById('adm-link-chan')) document.getElementById('adm-link-chan').value = s.val().channel || "";
-            if(document.getElementById('adm-link-help')) document.getElementById('adm-link-help').value = s.val().help || "";
-        }
+        const d = s.val() || {};
+        if(document.getElementById('adm-link-chan')) document.getElementById('adm-link-chan').value = d.channel || "";
+        if(document.getElementById('adm-link-help')) document.getElementById('adm-link-help').value = d.help || "";
     });
 
-    // ৪. পেমেন্ট মেথড লোড
     db.ref('paymentMethods').on('value', s => {
         let h = "";
         s.forEach(p => {
@@ -896,12 +885,57 @@ function fetchAdminSettingsData() {
         if(pmArea) pmArea.innerHTML = h;
     });
 }
-	// App ready holei data fetch shuru korbe
+
+/* --- ACTION FUNCTIONS --- */
+
+function addNewCoin() {
+    const n = document.getElementById('new-c-name').value.trim();
+    const tid = document.getElementById('new-c-tid').value.trim();
+    const ur = document.getElementById('new-c-user').value;
+    const ar = document.getElementById('new-c-admin').value;
+    if(n && tid && ur && ar) {
+        db.ref('marketConfig/'+n).set({ transferId: tid, userRate: parseFloat(ur), adminRate: parseFloat(ar), status: true })
+        .then(() => alert("Added!"));
+    }
+}
+
+function addNewPayment() {
+    const name = document.getElementById('new-pay-name').value.trim();
+    if(name) db.ref('paymentMethods/'+name).set({status: true});
+}
+
+function updateAdmLinks() {
+    db.ref('settings/links').set({
+        channel: document.getElementById('adm-link-chan').value,
+        help: document.getElementById('adm-link-help').value
+    }).then(() => alert("Updated!"));
+}
+
+function updateOrderStatus(id, status, user, payable) {
+    db.ref('orders/'+id).update({status: status}).then(() => {
+        if(status === 'completed' && user) {
+            db.ref('leaderboard/'+user).once('value', sn => {
+                let d = sn.val() || { totalAmount: 0, user: user };
+                db.ref('leaderboard/'+user).update({ totalAmount: (parseFloat(d.totalAmount) + payable) });
+            });
+        }
+        alert("Success!");
+    });
+}
+
+function resetSalesStats() {
+    if(confirm("Reset Stats?")) {
+        db.ref('orders').once('value', s => {
+            let total = 0;
+            Object.values(s.val() || {}).forEach(o => { if(o.status === 'completed') total += parseFloat(o.payable || 0); });
+            db.ref('stats_reset').set({ resetAmount: total }).then(() => alert("Reset!"));
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    fetchHistory();
-    fetchLeaderboard();
-    // Jodi admin lock thake, tab-er initial state set kora
     adminActiveTab = 'pending';
+    renderAdminData();
 });
 
 </script>
