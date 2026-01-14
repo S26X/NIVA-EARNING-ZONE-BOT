@@ -363,29 +363,39 @@
     let adminActiveTab = 'pending';
 
     window.onload = () => {
-    // Telegram WebApp expand kora
     tg.expand();
 
-    // User data fetch (Telegram theke ba test user)
-    const user = tg.initDataUnsafe.user || { id: 12345, first_name: "Test User", username: "tester" };
+    // টেলিগ্রাম থেকে ইউজার ডাটা নেওয়া
+    const user = tg.initDataUnsafe.user || { id: 0, first_name: "Guest", username: "guest" };
+    const userId = Number(user.id);
     
-    // UI-te User Information set kora
+    // গ্লোবাল ভেরিয়েবলে ইউজারনেম সেভ রাখা (লিডারবোর্ডের জন্য)
+    window.currentTelegramUser = user.username || user.first_name || "Guest";
+
     const userNameEl = document.getElementById('user-display-name');
     const userTagEl = document.getElementById('user-display-tag');
     const userPfpEl = document.getElementById('user-pfp');
 
-    if(userNameEl) userNameEl.innerText = user.first_name;
+    if(userNameEl) userNameEl.innerText = user.first_name + (user.last_name ? " " + user.last_name : "");
     if(userTagEl) userTagEl.innerText = "@" + (user.username || "guest");
-    if(userPfpEl) userPfpEl.src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
-
-    // --- ADMIN ACCESS CHECK ---
-    // Jodi user ID admin list-e thake, tobe shortcut button-ti dekhabe
-    const adminBtn = document.getElementById('admin-shortcut');
-    if(ADMIN_LIST.includes(Number(user.id))) {
-        if(adminBtn) adminBtn.style.display = 'block';
+    
+    if(userPfpEl) {
+        userPfpEl.src = user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}&background=3b82f6&color=fff&bold=true`;
     }
 
-    // Loading screen bondho kore main app interface show kora
+    // --- অ্যাডমিন বাটন সিকিউরিটি ---
+    const adminBtn = document.getElementById('admin-shortcut');
+    if (adminBtn) {
+        if (ADMIN_LIST.includes(userId)) {
+            // শুধুমাত্র অ্যাডমিন হলে বাটনটি দৃশ্যমান হবে
+            adminBtn.style.display = 'flex'; 
+        } else {
+            // অ্যাডমিন না হলে বাটনটি ডকুমেন্ট থেকে পুরোপুরি মুছে যাবে
+            adminBtn.remove(); 
+        }
+    }
+
+    // লোডিং স্ক্রিন প্রসেস
     setTimeout(() => {
         const loadingScr = document.getElementById('loading');
         if(loadingScr) {
@@ -397,7 +407,7 @@
         }
     }, 2000);
 
-    // Initial data fetch shuru kora
+    // ডাটা লোড করা শুরু
     initializeDataFetching();
     fetchHistory();
     fetchLeaderboard();
@@ -617,29 +627,42 @@ function closeReviewModal() {
 
 // ১. লিডারবোর্ড ডাটা ফেচ এবং ডিলিট লজিক (fetchAdminSettingsData এর ভেতরে থাকবে)
 function fetchLeaderboard() {
-    db.ref('leaderboard').on('value', s => {
-        let h = "";
-        const users = [];
-        
-        // ডাটা অ্যারেতে নিয়ে সর্টিং (বেশি টাকা উপরে থাকবে)
-        s.forEach(u => {
-            users.push(u.val());
-        });
-        users.sort((a, b) => b.totalAmount - a.totalAmount);
+    const rankDisplay = document.getElementById('rank-list-display');
+    if (!rankDisplay) return;
 
-        users.forEach(d => {
-            h += `
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 10px;">
-                <div>
-                    <b style="color: #1e293b;">@${d.user}</b><br>
-                    <small style="color:#10b981; font-weight: 800;">${parseFloat(d.totalAmount).toFixed(2)}৳</small>
-                </div>
-                <button onclick="deleteLdrUser('${d.user}')" style="border:none; color:#ef4444; background:#fee2e2; padding: 6px 12px; border-radius: 8px; font-weight:800; cursor:pointer;">DEL</button>
-            </div>`;
+    // Firebase এর 'leaderboard' নোড থেকে ডাটা পড়া
+    db.ref('leaderboard').on('value', snap => {
+        let users = [];
+        snap.forEach(u => {
+            let data = u.val();
+            // ডাটা সঠিক থাকলে অ্যারেতে পুশ করা
+            if(data.user && data.totalAmount !== undefined) {
+                users.push(data);
+            }
         });
+
+        // সর্টিং: যার টোটাল অ্যামাউন্ট বেশি সে উপরে থাকবে
+        users.sort((a, b) => (parseFloat(b.totalAmount) || 0) - (parseFloat(a.totalAmount) || 0));
+
+        let html = "<h3 style='margin: 15px 5px;'>🏆 Top Earners</h3>";
         
-        const lbArea = document.getElementById('adm-leaderboard-list');
-        if(lbArea) lbArea.innerHTML = h || "<center style='color:#94a3b8; padding:20px;'>No Top Earners Yet</center>";
+        if (users.length === 0) {
+            html += "<p style='text-align:center; padding:20px; color:#94a3b8;'>No earners found yet.</p>";
+        } else {
+            users.forEach((d, i) => {
+                let medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`;
+                html += `
+                <div class="action-card" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <div style="font-weight:900; color:#64748b; width:25px; font-size:14px;">${medal}</div>
+                        <b style="font-size:14px; color:#1e293b;">@${d.user}</b>
+                    </div>
+                    <b style="color:#10b981; font-size:15px;">${parseFloat(d.totalAmount).toFixed(2)}৳</b>
+                </div>`;
+            });
+        }
+        
+        rankDisplay.innerHTML = html;
     });
 }
 
@@ -686,19 +709,29 @@ function switchTab(id, el) {
 
 // Admin Panel Open Korar Function
 function openAdminPanel() {
+    const user = tg.initDataUnsafe.user || {};
+    const userId = Number(user.id);
+
+    // ১. চেক করা হচ্ছে ইউজার আইডি এডমিন লিস্টে আছে কিনা
+    if (!ADMIN_LIST.includes(userId)) {
+        alert("Access Denied! You are not an authorized administrator.");
+        tg.HapticFeedback.notificationOccurred('error'); // ফোনে ভাইব্রেশন দিবে
+        return; // ফাংশন এখানেই থেমে যাবে, ড্যাশবোর্ড খুলবে না
+    }
+
+    // ২. আইডি ঠিক থাকলে ড্যাশবোর্ড ওপেন হবে
     const adminUI = document.getElementById('admin-master-ui');
     const lockScreen = document.getElementById('admin-lock-screen');
     const dashboardView = document.getElementById('admin-dashboard-view');
 
     if (adminUI) {
         adminUI.style.display = 'block';
-        // PIN screen skip kore sorasori dashboard show kora
-        if(lockScreen) lockScreen.style.display = 'none'; 
+        if(lockScreen) lockScreen.style.display = 'none'; // পিন স্ক্রিন স্কিপ
         if(dashboardView) dashboardView.style.display = 'block';
         
-        // Default vabe pending orders load hobe
         adminActiveTab = 'pending';
         renderAdminData(); 
+        tg.HapticFeedback.impactOccurred('medium');
     }
 }
 
