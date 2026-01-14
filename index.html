@@ -615,30 +615,44 @@ function closeReviewModal() {
 
 // ১. লিডারবোর্ড ডাটা ফেচ এবং ডিলিট লজিক (fetchAdminSettingsData এর ভেতরে থাকবে)
 function fetchLeaderboardData() {
-   // --- LEADERBOARD LOGIC (AS PER ADMIN.HTML) ---
-db.ref('leaderboard').on('value', s => {
-    let h = "";
-    let users = [];
-    
-    // Prothome sob data ekti array te nilam
-    s.forEach(u => {
-        users.push(u.val());
+    db.ref('leaderboard').on('value', s => {
+        let h = "";
+        const users = [];
+        
+        // ডাটা অ্যারেতে নিয়ে সর্টিং (বেশি টাকা উপরে থাকবে)
+        s.forEach(u => {
+            users.push(u.val());
+        });
+        users.sort((a, b) => b.totalAmount - a.totalAmount);
+
+        users.forEach(d => {
+            h += `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee; background: #fff; margin-bottom: 5px; border-radius: 10px;">
+                <div>
+                    <b style="color: #1e293b;">@${d.user}</b><br>
+                    <small style="color:#10b981; font-weight: 800;">${parseFloat(d.totalAmount).toFixed(2)}৳</small>
+                </div>
+                <button onclick="deleteLdrUser('${d.user}')" style="border:none; color:#ef4444; background:#fee2e2; padding: 6px 12px; border-radius: 8px; font-weight:800; cursor:pointer;">DEL</button>
+            </div>`;
+        });
+        
+        const lbArea = document.getElementById('adm-leaderboard-list');
+        if(lbArea) lbArea.innerHTML = h || "<center style='color:#94a3b8; padding:20px;'>No Top Earners Yet</center>";
     });
+}
 
-    // admin.html er moto sorting: beshi amount upore thakbe
-    users.sort((a, b) => (b.totalAmount || 0) - (a.totalAmount || 0));
-
-    // Ekhon sorted data diye HTML banano
-    users.forEach(d => {
-        h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;">
-            <div><b>@${d.user}</b><br><small style="color:#10b981">${parseFloat(d.totalAmount || 0).toFixed(2)}৳</small></div>
-            <button style="border:none; color:#ef4444; background:none; font-weight:800; cursor:pointer;" onclick="if(confirm('Delete user?')) db.ref('leaderboard/${d.user}').remove()">DEL</button>
-        </div>`;
-    });
-
-    const lbArea = document.getElementById('adm-leaderboard-list');
-    if(lbArea) lbArea.innerHTML = h || "<center style='padding:20px; color:#94a3b8;'>No Users Found</center>";
-});
+// ২. লিডারবোর্ড ইউজার ডিলিট ফাংশন
+function deleteLdrUser(username) {
+    if(confirm(`Remove @${username} from leaderboard?`)) {
+        db.ref('leaderboard/' + username).remove()
+        .then(() => {
+            alert("✅ User removed!");
+        })
+        .catch(err => {
+            alert("❌ Error: " + err.message);
+        });
+    }
+}
 
     /* =========================================
        ADMIN PANEL LOGIC (ALL FEATURES ADDED)
@@ -950,4 +964,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
