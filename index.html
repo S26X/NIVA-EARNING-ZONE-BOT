@@ -618,13 +618,46 @@ function switchTab(id, el) {
     if(id === 'rank-scr') fetchLeaderboard();
 }
 
-    function verifyAdminPin() {
-        if(document.getElementById('adm-pin-input').value === "0957") {
-            document.getElementById('admin-lock-screen').style.display = 'none';
-            document.getElementById('admin-dashboard-view').style.display = 'block';
-            startAdminEngine();
-        } else { alert("Wrong PIN"); }
+/* --- ADMIN PANEL INTERFACE CONTROL --- */
+
+function openAdminPanel() {
+    // 1. Main Admin UI container khola
+    const adminUI = document.getElementById('admin-master-ui');
+    if (adminUI) {
+        adminUI.style.display = 'block'; // Interface show korbe
+        
+        // 2. Initial state: Lock screen dekhabe, Dashboard hide thakbe
+        document.getElementById('admin-lock-screen').style.display = 'flex';
+        const dashboard = document.getElementById('admin-dashboard-view');
+        if(dashboard) dashboard.style.display = 'none';
+        
+        // 3. Admin data sync shuru kora
+        startAdminEngine(); 
+    } else {
+        alert("Error: admin-master-ui container khuje pauya jachhe na!");
     }
+}
+
+function closeAdminPanel() {
+    const adminUI = document.getElementById('admin-master-ui');
+    if (adminUI) adminUI.style.display = 'none';
+}
+
+// PIN verify houar por dashboard show kora
+function verifyAdminPin() {
+    const pin = document.getElementById('adm-pin-input').value;
+    if(pin === "0957") { // Apnar pin
+        document.getElementById('admin-lock-screen').style.display = 'none';
+        const dashboard = document.getElementById('admin-dashboard-view');
+        if(dashboard) dashboard.style.display = 'block';
+        
+        // Default tab set kora
+        adminActiveTab = 'pending';
+        renderAdminData();
+    } else { 
+        alert("Wrong PIN"); 
+    }
+}
 
    function startAdminEngine() {
     // Real-time Orders Listener
@@ -831,30 +864,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Jodi admin lock thake, tab-er initial state set kora
     adminActiveTab = 'pending';
 });
-
-/* --- ADMIN PANEL OPEN/CLOSE FUNCTIONS --- */
-
-function openAdminPanel() {
-    // Admin Master UI container-ti khola
-    const adminUI = document.getElementById('admin-master-ui');
-    if(adminUI) {
-        adminUI.style.display = 'block';
-        // Prothome PIN lock screen dekhabe
-        document.getElementById('admin-lock-screen').style.display = 'flex';
-        document.getElementById('admin-dashboard-view').style.display = 'none';
-    } else {
-        alert("Admin UI not found! HTML-e 'admin-master-ui' id thik moto ache ki na check korun.");
-    }
-}
-
-function closeAdminPanel() {
-    // Admin Master UI container-ti bondho kora
-    const adminUI = document.getElementById('admin-master-ui');
-    if(adminUI) {
-        adminUI.style.display = 'none';
-    }
-}
-
 
 </script>
 </body>
