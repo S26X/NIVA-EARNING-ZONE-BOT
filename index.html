@@ -817,6 +817,12 @@ function renderAdminData() {
     }
 }
 
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+        alert("Number Copied: " + text);
+    });
+}
+
 function renderSettingsUI(container) {
     container.innerHTML = `
         <div class="settings-card" style="background:white; padding:15px; border-radius:20px; border:1px solid #e2e8f0;">
