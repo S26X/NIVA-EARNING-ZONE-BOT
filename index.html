@@ -62,57 +62,219 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
         /* =========================================
-           [SECTION 2] UPDATED MODERN ADMIN UI
-           ========================================= */
-        #admin-master-ui { position: fixed; inset: 0; background: #f8fafc; z-index: 100000; display: none; overflow-y: auto; font-family: 'Plus Jakarta Sans', sans-serif; }
-        #admin-lock-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 100001; flex-direction: column; color: white; }
-        
-        .adm-container { max-width: 500px; margin: 0 auto; padding: 15px; } 
+   [SECTION 2] UPDATED MODERN ADMIN UI
+   ========================================= */
+#admin-master-ui { 
+    position: fixed; 
+    inset: 0; 
+    background: #f8fafc; 
+    z-index: 100000; 
+    display: none; 
+    overflow-y: auto; 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+}
 
-        /* Statistics Row (Total User Sorano Hoyeche) */
-        .adm-stats-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
-        .adm-stat-box { background: white; padding: 15px; border-radius: 18px; border: 1px solid #e2e8f0; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
-        .adm-stat-box small { font-weight: 800; color: #64748b; font-size: 10px; display: block; text-transform: uppercase; }
-        .adm-stat-box h3 { margin: 5px 0 0; font-size: 20px; color: #1e293b; }
+#admin-lock-screen { 
+    position: fixed; 
+    inset: 0; 
+    background: #0f172a; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 100001; 
+    flex-direction: column; 
+    color: white; 
+}
 
-        /* Modern Tab Menu */
-        .adm-tab-menu { display: flex; background: #f1f5f9; border-radius: 15px; padding: 5px; margin-bottom: 15px; gap: 5px; } 
-        .adm-tab { flex: 1; text-align: center; padding: 12px 5px; font-size: 11px; font-weight: 800; cursor: pointer; border-radius: 12px; color: #64748b; transition: 0.3s; } 
-        .adm-tab.active { background: #fff; color: #2563eb; box-shadow: 0 4px 12px rgba(0,0,0,0.05); } 
+.adm-container { 
+    max-width: 500px; 
+    margin: 0 auto; 
+    padding: 15px; 
+} 
 
-        /* Grid Order Card - EXACTLY AS PHOTO */
-        .adm-order-box { 
-            background: white; 
-            border-radius: 20px; 
-            padding: 18px; 
-            margin-bottom: 15px; 
-            border: 1px solid #f1f5f9; 
-            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .order-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        .grid-item { background: #f8fafc; padding: 12px; border-radius: 15px; border: 1px solid #f1f5f9; }
-        .grid-item small { display: block; color: #94a3b8; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 3px; }
-        .grid-item b { font-size: 11px; color: #1e293b; }
+/* Statistics Row - Shudhu Total Sales (Total User Sorano Hoyeche) */
+.adm-stats-row { 
+    display: block; 
+    margin-bottom: 15px; 
+}
 
-        .status-badge { font-size: 10px; font-weight: 900; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; }
+.adm-stat-box { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 20px; 
+    border: 1px solid #e2e8f0; 
+    text-align: center; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+}
 
-        /* Settings & Forms */
-        .adm-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; font-size: 13px; background: #fcfcfc; }
-        .adm-btn { border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 15px; margin-bottom: 8px; border: 1px solid #f1f5f9; }
+.adm-stat-box small { 
+    font-weight: 800; 
+    color: #64748b; 
+    font-size: 10px; 
+    display: block; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+}
 
-        /* Switches */
-        .adm-switch { position: relative; display: inline-block; width: 34px; height: 18px; } 
-        .adm-switch input { opacity: 0; width: 0; height: 0; } 
-        .adm-slider { position: absolute; inset: 0; background-color: #e2e8f0; border-radius: 34px; transition: .4s; }
-        .adm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .4s; }
-        input:checked + .adm-slider { background-color: #10b981; }
-        input:checked + .adm-slider:before { transform: translateX(16px); }
+.adm-stat-box h3 { 
+    margin: 5px 0 0; 
+    font-size: 28px; 
+    color: #1e293b; 
+}
+
+/* Vertical Tab Menu - Ekti niche arekti (Vertical List) */
+.adm-tab-menu { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+    margin-bottom: 20px; 
+} 
+
+.adm-tab { 
+    background: white;
+    padding: 16px 20px; 
+    font-size: 14px; 
+    font-weight: 800; 
+    cursor: pointer; 
+    border-radius: 18px; 
+    color: #64748b; 
+    border: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+} 
+
+.adm-tab.active { 
+    background: #fff; 
+    color: #2563eb; 
+    border-color: #2563eb; 
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); 
+}
+
+.adm-tab.active::after {
+    content: "❯"; /* Active hole arrow dekhabe */
+    font-size: 12px;
+}
+
+/* Grid Order Card */
+.adm-order-box { 
+    background: white; 
+    border-radius: 20px; 
+    padding: 18px; 
+    margin-bottom: 15px; 
+    border: 1px solid #f1f5f9; 
+    box-shadow: 0 2px 15px rgba(0,0,0,0.02);
+    position: relative;
+    overflow: hidden;
+}
+
+.order-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 15px; 
+}
+
+.order-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 10px; 
+}
+
+.grid-item { 
+    background: #f8fafc; 
+    padding: 12px; 
+    border-radius: 15px; 
+    border: 1px solid #f1f5f9; 
+}
+
+.grid-item small { 
+    display: block; 
+    color: #94a3b8; 
+    font-size: 9px; 
+    font-weight: 800; 
+    text-transform: uppercase; 
+    margin-bottom: 3px; 
+}
+
+.grid-item b { 
+    font-size: 11px; 
+    color: #1e293b; 
+}
+
+.status-badge { 
+    font-size: 10px; 
+    font-weight: 900; 
+    padding: 5px 12px; 
+    border-radius: 10px; 
+    text-transform: uppercase; 
+}
+
+/* Settings & Forms */
+.adm-input { 
+    width: 100%; 
+    padding: 12px; 
+    border-radius: 12px; 
+    border: 1px solid #e2e8f0; 
+    margin-bottom: 10px; 
+    font-size: 13px; 
+    background: #fcfcfc; 
+}
+
+.adm-btn { 
+    border: none; 
+    padding: 12px; 
+    border-radius: 12px; 
+    font-weight: 800; 
+    cursor: pointer; 
+    width: 100%; 
+    transition: 0.2s; 
+}
+
+.user-row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 12px; 
+    background: #f8fafc; 
+    border-radius: 15px; 
+    margin-bottom: 8px; 
+    border: 1px solid #f1f5f9; 
+}
+
+/* Switches */
+.adm-switch { 
+    position: relative; 
+    display: inline-block; 
+    width: 34px; 
+    height: 18px; 
+} 
+
+.adm-switch input { opacity: 0; width: 0; height: 0; } 
+
+.adm-slider { 
+    position: absolute; 
+    inset: 0; 
+    background-color: #e2e8f0; 
+    border-radius: 34px; 
+    transition: .4s; 
+}
+
+.adm-slider:before { 
+    position: absolute; 
+    content: ""; 
+    height: 14px; 
+    width: 14px; 
+    left: 2px; 
+    bottom: 2px; 
+    background-color: white; 
+    border-radius: 50%; 
+    transition: .4s; 
+}
+
+input:checked + .adm-slider { background-color: #10b981; }
+input:checked + .adm-slider:before { transform: translateX(16px); }
     </style>
 </head>
 <body>
@@ -247,24 +409,26 @@
         </div>
 
         <div class="adm-container">
-            <div class="adm-stats-row">
-                <div class="adm-stat-box" style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="text-align:left;"><small>TOTAL SALES</small><h3 id="adm-display-sales">0.00৳</h3></div>
-                    <button onclick="resetSalesStats()" style="background:none; border:none; font-size:20px;">🧹</button>
-                </div>
-                <div class="adm-stat-box">
-                    <small>PENDING</small>
-                    <h3 id="adm-display-pending" style="color:#f59e0b;">0</h3>
-                </div>
-           
-
-
-            <div class="adm-main-card">
-    <div class="adm-tab-menu">
-        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">PENDING</div>
-        <div class="adm-tab" onclick="switchAdminTab('history', this)">HISTORY</div>
-        <div class="adm-tab" onclick="switchAdminTab('settings', this)">SETTINGS</div>
+    <div class="adm-stats-row">
+        <div class="adm-stat-box">
+            <small>Total Completed Sales</small>
+            <h3 id="adm-total-sales">0.00৳</h3>
+        </div>
     </div>
+
+    <div class="adm-tab-menu">
+        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">
+            <span>🕒 PENDING ORDERS</span>
+        </div>
+        <div class="adm-tab" onclick="switchAdminTab('history', this)">
+            <span>📜 ORDER HISTORY</span>
+        </div>
+        <div class="adm-tab" onclick="switchAdminTab('settings', this)">
+            <span>⚙️ PANEL SETTINGS</span>
+        </div>
+    </div>
+
+    <div id="admin-dynamic-content"></div>
 </div>
 
 <div id="adm-pending-view" class="adm-tab-content active">
@@ -557,17 +721,27 @@ function closeReviewModal() {
     renderAdminData();
 }
 
-    function renderAdminData() {
+    /* =========================================
+   UPDATED JAVASCRIPT FOR VERTICAL UI
+   ========================================= */
+
+function renderAdminData() {
     const area = document.getElementById('admin-dynamic-content');
     
+    // Tab active thakle style update (Vertical highlight)
+    document.querySelectorAll('.adm-tab').forEach(t => {
+        t.classList.remove('active');
+        if(t.innerText.toLowerCase().includes(adminActiveTab)) t.classList.add('active');
+    });
+
     if(adminActiveTab === 'settings') {
-        // --- Settings View (Your existing code kept intact) ---
+        // --- Settings View (Existing) ---
         area.innerHTML = `
             <div style="padding-top:10px;">
                 <b style="font-size:12px; color:#64748b;">🏆 LEADERBOARD</b>
                 <div id="adm-leaderboard-list" style="margin:10px 0;"></div>
                 <button class="adm-btn" style="background:#fee2e2; color:#ef4444;" onclick="if(confirm('Reset all rankings?')) db.ref('leaderboard').remove()">RESET ALL RANKINGS</button>
-                <hr style="margin:20px 0;">
+                <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
                 <b style="font-size:12px; color:#64748b;">🪙 ADD NEW COIN</b>
                 <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-top:10px;">
                     <input type="text" id="new-c-name" class="adm-input" placeholder="Coin Name">
@@ -579,7 +753,7 @@ function closeReviewModal() {
                     <button class="adm-btn" style="background:var(--p-blue); color:white;" onclick="addNewCoin()">ADD COIN</button>
                 </div>
                 <div id="adm-market-config-list" style="margin-top:20px;"></div>
-                <hr style="margin:20px 0;">
+                <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
                 <b style="font-size:12px; color:#64748b;">💳 PAYMENTS & LINKS</b>
                 <div style="margin-top:10px;">
                     <input type="text" id="adm-link-chan" class="adm-input" placeholder="Channel Link">
@@ -595,7 +769,7 @@ function closeReviewModal() {
             </div>`;
         fetchAdminSettingsData();
     } else {
-        // --- Order View (Pending & History) ---
+        // --- Orders View (Pending & History) ---
         db.ref('orders').once('value', s => {
             const orders = s.val() || {};
             let html = "";
@@ -607,13 +781,12 @@ function closeReviewModal() {
 
                 if(shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
-                    const statusLabel = o.status.toUpperCase();
-
+                    
                     html += `
                     <div class="adm-order-box" style="border-left: 6px solid ${statusColor};">
                         <div class="order-header">
                             <b style="font-size: 16px; color:#1e293b;">@${o.user}</b>
-                            <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${statusLabel}</span>
+                            <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
                         </div>
 
                         <div class="order-grid">
@@ -628,7 +801,7 @@ function closeReviewModal() {
                                 <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:2; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
                                 <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
                             ` : ''}
-                            <button onclick="if(confirm('Delete order?')) db.ref('orders/${o.id}').remove().then(()=>renderAdminData())" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
+                            <button onclick="if(confirm('Delete order?')) db.ref('orders/${o.id}').remove().then(()=>renderAdminData())" style="background:#f1f5f9; border:none; padding:10px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
                         </div>
                     </div>`;
                 }
