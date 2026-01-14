@@ -232,18 +232,24 @@
                     <small>PENDING</small>
                     <h3 id="adm-display-pending" style="color:#f59e0b;">0</h3>
                 </div>
-                <div class="adm-stat-box">
-                    <small>TOTAL USERS</small>
-                    <h3 id="adm-display-users" style="color:#2563eb;">0</h3>
-                </div>
-            </div>
+           
+
 
             <div class="adm-main-card">
-                <div class="adm-tab-menu">
-                    <div class="adm-tab active" onclick="switchAdminTab('pending', this)">PENDING</div>
-                    <div class="adm-tab" onclick="switchAdminTab('completed', this)">APPROVED</div>
-                    <div class="adm-tab" onclick="switchAdminTab('settings', this)">SETTINGS</div>
-                </div>
+    <div class="adm-tab-menu">
+        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">PENDING</div>
+        <div class="adm-tab" onclick="switchAdminTab('history', this)">HISTORY</div>
+        <div class="adm-tab" onclick="switchAdminTab('settings', this)">SETTINGS</div>
+    </div>
+</div>
+
+<div id="adm-pending-view" class="adm-tab-content active">
+    <div id="adm-pending-list"></div>
+</div>
+
+<div id="adm-history-view" class="adm-tab-content">
+    <div id="adm-history-list"></div>
+</div>
                 <div id="admin-dynamic-content"></div>
             </div>
         </div>
@@ -519,11 +525,13 @@ function closeReviewModal() {
     }
 
     function switchAdminTab(t, el) {
-        adminActiveTab = t;
-        document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
-        el.classList.add('active');
-        renderAdminData();
-    }
+    adminActiveTab = t; // Ekhon 'pending', 'history', ba 'settings' hobe
+    document.querySelectorAll('.adm-tab').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    
+    // Tab onujayi data render kora holo
+    renderAdminData();
+}
 
     function renderAdminData() {
         const area = document.getElementById('admin-dynamic-content');
@@ -533,9 +541,7 @@ function closeReviewModal() {
                     <b style="font-size:12px; color:#64748b;">🏆 LEADERBOARD</b>
                     <div id="adm-leaderboard-list" style="margin:10px 0;"></div>
                     <button class="adm-btn" style="background:#fee2e2; color:#ef4444;" onclick="if(confirm('Reset all rankings?')) db.ref('leaderboard').remove()">RESET ALL RANKINGS</button>
-                    
                     <hr style="margin:20px 0;">
-                    
                     <b style="font-size:12px; color:#64748b;">🪙 ADD NEW COIN</b>
                     <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-top:10px;">
                         <input type="text" id="new-c-name" class="adm-input" placeholder="Coin Name">
@@ -546,24 +552,19 @@ function closeReviewModal() {
                         </div>
                         <button class="adm-btn" style="background:var(--p-blue); color:white;" onclick="addNewCoin()">ADD COIN</button>
                     </div>
-                    
                     <div id="adm-market-config-list" style="margin-top:20px;"></div>
-
                     <hr style="margin:20px 0;">
-
                     <b style="font-size:12px; color:#64748b;">💳 PAYMENTS & LINKS</b>
                     <div style="margin-top:10px;">
                         <input type="text" id="adm-link-chan" class="adm-input" placeholder="Channel Link">
                         <input type="text" id="adm-link-help" class="adm-input" placeholder="Help Link">
                         <button class="adm-btn" style="background:var(--p-blue); color:white;" onclick="updateAdmLinks()">UPDATE LINKS</button>
                     </div>
-
                     <div style="margin-top:20px; display:flex; gap:8px;">
                         <input type="text" id="new-pay-name" class="adm-input" placeholder="New Method">
                         <button class="adm-btn" style="background:var(--success); color:white; width:80px; margin:0;" onclick="addNewPayment()">ADD</button>
                     </div>
                     <div id="adm-payment-list" style="margin-top:10px;"></div>
-
                     <button class="adm-btn" style="margin-top:30px; background:#fee2e2; color:#ef4444;" onclick="resetSalesStats()">RESET SALES TOTAL</button>
                 </div>`;
             fetchAdminSettingsData();
@@ -571,24 +572,36 @@ function closeReviewModal() {
             db.ref('orders').once('value', s => {
                 const orders = s.val() || {};
                 let html = "";
+                
+                // Latest orders list reverse
                 Object.values(orders).reverse().forEach(o => {
-                    if(o.status === adminActiveTab) {
+                    // Joldi history tab hoy, tobe completed ebong rejected dutoi dekhabe
+                    const isHistoryTab = (adminActiveTab === 'history' || adminActiveTab === 'completed');
+                    const shouldShow = isHistoryTab ? (o.status === 'completed' || o.status === 'rejected') : (o.status === adminActiveTab);
+
+                    if(shouldShow) {
+                        const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
+                        const statusLabel = o.status.toUpperCase();
+
                         html += `
-                        <div class="adm-order-box" style="border-left-color: ${adminActiveTab==='pending'?'#f59e0b':'#10b981'}">
-                            <div style="display:flex; justify-content:space-between;"><b>@${o.user}</b> <small>#${o.id.toString().slice(-4)}</small></div>
+                        <div class="adm-order-box" style="border-left-color: ${statusColor}">
+                            <div style="display:flex; justify-content:space-between;">
+                                <b>@${o.user}</b> 
+                                <small style="color:${statusColor}; font-weight:bold;">${statusLabel}</small>
+                            </div>
                             <div style="font-size:11px; margin:5px 0;">Item: ${o.amt} ${o.coin} | Pay: ${o.payable}৳</div>
                             <div style="font-size:11px; color:#64748b;">Method: ${o.method} (${o.number}) | Sender: ${o.sender}</div>
                             <div style="display:flex; gap:5px; margin-top:10px;">
-                                ${adminActiveTab === 'pending' ? `
+                                ${o.status === 'pending' ? `
                                 <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:2; background:#10b981; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">APPROVE</button>
                                 <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">REJECT</button>
                                 ` : ''}
-                                <button onclick="if(confirm('Delete order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; padding:10px; border-radius:10px;">🗑️</button>
+                                <button onclick="if(confirm('Delete order record?')) db.ref('orders/${o.id}').remove().then(()=>renderAdminData())" style="background:#f1f5f9; border:none; padding:10px; border-radius:10px;">🗑️</button>
                             </div>
                         </div>`;
                     }
                 });
-                area.innerHTML = html || "<center style='padding:30px; color:#94a3b8;'>No Orders Found</center>";
+                area.innerHTML = html || "<center style='padding:30px; color:#94a3b8;'>No Data Found</center>";
             });
         }
     }
@@ -698,3 +711,4 @@ function closeReviewModal() {
 </script>
 </body>
 </html>
+
