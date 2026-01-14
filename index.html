@@ -260,9 +260,9 @@
 
         <div class="adm-container">
     <div class="adm-stats-row">
-        <div class="adm-stat-box">
-            <small>Total Completed Sales</small>
-            <h3 id="adm-total-sales">0.00৳</h3>
+        <div class="adm-stat-box" style="border-bottom: 4px solid #f59e0b;">
+            <small>Total Pending Orders</small>
+            <h3 id="adm-total-pending" style="color: #f59e0b;">0</h3>
         </div>
     </div>
 
@@ -356,14 +356,12 @@
     }
 
     /* --- USER HELPERS --- */
-    function switchTab(id, btn) {
-        document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
-        btn.classList.add('active');
-        ['home-scr','history-scr','rank-scr'].forEach(s => document.getElementById(s).style.display='none');
-        document.getElementById(id).style.display='block';
-        if(id === 'history-scr') fetchHistory();
-        if(id === 'rank-scr') fetchLeaderboard();
-    }
+    function switchAdminTab(tab, el) {
+    adminActiveTab = tab;
+    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    renderAdminData();
+}
 
     function openOrderModal(name, rate, tid) {
         currentSelectedCoin = name; currentCoinRate = rate; currentCoinTID = tid;
@@ -553,99 +551,63 @@ function closeReviewModal() {
         renderAdminData();
     }
 
-    function renderAdminData() {
+    // Instant Data Sync-er jonno connection
+let ordersListener = null;
+
+// Real-time Pending Counter (Shob somoy active thakbe)
+db.ref('orders').on('value', s => {
+    const orders = s.val() || {};
+    const count = Object.values(orders).filter(o => o.status === 'pending').length;
+    document.getElementById('adm-total-pending').innerText = count;
+});
+
+function renderAdminData() {
     const area = document.getElementById('admin-dynamic-content');
+    
+    // Agon Listener bondho kora jate memory leak na hoy
+    if(ordersListener) db.ref('orders').off('value', ordersListener);
 
-    if (adminActiveTab === 'settings') {
-        area.innerHTML = `
-            <div style="padding-top:10px;">
-                <b style="font-size:12px; color:#64748b;">🏆 LEADERBOARD</b>
-                <div id="adm-leaderboard-list" style="margin:10px 0;"></div>
-                <button class="adm-btn" style="background:#fee2e2; color:#ef4444;" onclick="if(confirm('Reset all rankings?')) db.ref('leaderboard').remove()">RESET ALL RANKINGS</button>
-                
-                <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
-                
-                <b style="font-size:12px; color:#64748b;">🪙 ADD NEW COIN</b>
-                <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-top:10px;">
-                    <input type="text" id="new-c-name" class="adm-input" placeholder="Coin Name">
-                    <input type="text" id="new-c-tid" class="adm-input" placeholder="Transfer ID">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        <input type="number" id="new-c-user" class="adm-input" placeholder="User Rate">
-                        <input type="number" id="new-c-admin" class="adm-input" placeholder="Admin Rate">
-                    </div>
-                    <button class="adm-btn" style="background:var(--p-blue); color:white;" onclick="addNewCoin()">ADD COIN</button>
-                </div>
-                
-                <div id="adm-market-config-list" style="margin-top:20px;"></div>
-                <hr style="margin:20px 0; border:0; border-top:1px solid #e2e8f0;">
-
-                <b style="font-size:12px; color:#64748b;">💳 PAYMENTS & LINKS</b>
-                <div style="margin-top:10px;">
-                    <input type="text" id="adm-link-chan" class="adm-input" placeholder="Channel Link">
-                    <input type="text" id="adm-link-help" class="adm-input" placeholder="Help Link">
-                    <button class="adm-btn" style="background:var(--p-blue); color:white;" onclick="updateAdmLinks()">UPDATE LINKS</button>
-                </div>
-
-                <div style="margin-top:20px; display:flex; gap:8px;">
-                    <input type="text" id="new-pay-name" class="adm-input" placeholder="New Method">
-                    <button class="adm-btn" style="background:var(--success); color:white; width:80px; margin:0;" onclick="addNewPayment()">ADD</button>
-                </div>
-                <div id="adm-payment-list" style="margin-top:10px;"></div>
-
-                <button class="adm-btn" style="margin-top:30px; background:#fee2e2; color:#ef4444;" onclick="resetSalesStats()">RESET SALES TOTAL</button>
-            </div>`;
-        fetchAdminSettingsData();
+    if(adminActiveTab === 'settings') {
+        // Apnar existing settings logic ekhane thakbe
+        renderSettingsUI(area); 
     } else {
-        db.ref('orders').once('value', s => {
+        // .on('value') use kora hoyeche instant UI update-er jonno
+        ordersListener = db.ref('orders').on('value', s => {
             const orders = s.val() || {};
             let html = "";
             
             Object.values(orders).reverse().forEach(o => {
-                // Logic check for Pending or History
                 const isHistory = (adminActiveTab === 'history');
                 const shouldShow = isHistory ? (o.status === 'completed' || o.status === 'rejected') : (o.status === 'pending');
 
                 if (shouldShow) {
-                    // statusColor define kora hoyeche eikhane
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
                     
                     html += `
                     <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
                         <div class="order-header">
-                            <b style="font-size: 16px; color:#1e293b;">@${o.user}</b>
+                            <b style="font-size: 16px;">@${o.user}</b>
                             <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
                         </div>
 
                         <div class="order-grid">
-                            <div class="grid-item">
-                                <small>Pay To</small>
-                                <b>${o.number} (${o.method})</b>
-                            </div>
-                            <div class="grid-item">
-                                <small>Asset / Coin</small>
-                                <b>${o.amt} ${o.coin}</b>
-                            </div>
-                            <div class="grid-item">
-                                <small>Sender Info</small>
-                                <b>${o.sender}</b>
-                            </div>
-                            <div class="grid-item">
-                                <small>Payout Amount</small>
-                                <b style="color:#10b981;">${o.payable}৳</b>
-                            </div>
+                            <div class="grid-item"><small>Pay To</small><b>${o.number} (${o.method})</b></div>
+                            <div class="grid-item"><small>Asset</small><b>${o.amt} ${o.coin}</b></div>
+                            <div class="grid-item"><small>Sender</small><b>${o.sender}</b></div>
+                            <div class="grid-item"><small>Payout</small><b style="color:#10b981;">${o.payable}৳</b></div>
                         </div>
 
                         <div style="display:flex; gap:10px; margin-top:15px;">
                             ${o.status === 'pending' ? `
-                                <button class="btn-approve" onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:2; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
-                                <button class="btn-reject" onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
+                                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
+                                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
                             ` : ''}
-                            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove().then(()=>renderAdminData())" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
+                            <button onclick="if(confirm('Delete Order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:50px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
                         </div>
                     </div>`;
                 }
             });
-            area.innerHTML = html || "<center style='padding:50px; color:#94a3b8;'>No Orders Found</center>";
+            area.innerHTML = html || "<center style='padding:50px; color:#94a3b8;'>No Records Found</center>";
         });
     }
 }
