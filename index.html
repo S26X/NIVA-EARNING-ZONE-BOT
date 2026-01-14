@@ -743,48 +743,48 @@ db.ref('orders').on('value', s => {
     document.getElementById('adm-total-pending').innerText = count;
 });
 
+/* =========================================
+   COMBINED ADMIN ENGINE (UI + ALL FEATURES)
+   ========================================= */
+
 function renderAdminData() {
     const area = document.getElementById('admin-dynamic-content');
-    
-    // Agon Listener bondho kora jate memory leak na hoy
+    if (!area) return;
+
     if(ordersListener) db.ref('orders').off('value', ordersListener);
 
     if(adminActiveTab === 'settings') {
-        // Apnar existing settings logic ekhane thakbe
+        // সেটিংস UI রেন্ডার করা এবং ডেটা ফেচ করা
         renderSettingsUI(area); 
     } else {
-        // .on('value') use kora hoyeche instant UI update-er jonno
+        // পেন্ডিং এবং হিস্ট্রি লজিক
         ordersListener = db.ref('orders').on('value', s => {
             const orders = s.val() || {};
             let html = "";
-            
             Object.values(orders).reverse().forEach(o => {
                 const isHistory = (adminActiveTab === 'history');
-                const shouldShow = isHistory ? (o.status === 'completed' || o.status === 'rejected') : (o.status === 'pending');
+                const shouldShow = isHistory ? (o.status !== 'pending') : (o.status === 'pending');
 
                 if (shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
-                    
                     html += `
                     <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
                         <div class="order-header">
-                            <b style="font-size: 16px;">@${o.user}</b>
+                            <b>@${o.user}</b>
                             <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
                         </div>
-
                         <div class="order-grid">
                             <div class="grid-item"><small>Pay To</small><b>${o.number} (${o.method})</b></div>
                             <div class="grid-item"><small>Asset</small><b>${o.amt} ${o.coin}</b></div>
                             <div class="grid-item"><small>Sender</small><b>${o.sender}</b></div>
                             <div class="grid-item"><small>Payout</small><b style="color:#10b981;">${o.payable}৳</b></div>
                         </div>
-
                         <div style="display:flex; gap:10px; margin-top:15px;">
                             ${o.status === 'pending' ? `
                                 <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:1; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
                                 <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
                             ` : ''}
-                            <button onclick="if(confirm('Delete Order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:50px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
+                            <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; width:45px; border-radius:12px; cursor:pointer;">🗑️</button>
                         </div>
                     </div>`;
                 }
@@ -794,108 +794,108 @@ function renderAdminData() {
     }
 }
 
-    function fetchAdminSettingsData() {
-        // Leaderboard List
-        db.ref('leaderboard').once('value', s => {
-            let h = "";
-            s.forEach(u => {
-                const d = u.val();
-                h += `<div class="user-row">
-                    <div><b>@${d.user}</b><br><small style="color:var(--success)">${d.totalAmount.toFixed(2)}৳</small></div>
-                    <button style="border:none; color:var(--danger); background:none; font-weight:800;" onclick="if(confirm('Delete user?')) db.ref('leaderboard/${d.user}').remove()">DEL</button>
-                </div>`;
-            });
-            document.getElementById('adm-leaderboard-list').innerHTML = h || "No Users";
-        });
+function renderSettingsUI(container) {
+    container.innerHTML = `
+        <div class="settings-card" style="background:white; padding:15px; border-radius:20px; border:1px solid #e2e8f0;">
+            
+            <h4 style="margin-bottom:15px;">💎 Market Rates & Config</h4>
+            <div id="adm-market-config-list">Loading market data...</div>
+            
+            <div style="background:#f8fafc; padding:15px; border-radius:15px; border:1px dashed #cbd5e1; margin-bottom:20px;">
+                <small style="font-weight:800; display:block; margin-bottom:8px;">+ ADD NEW ASSET</small>
+                <input type="text" id="new-c-name" class="adm-input" placeholder="Coin Name">
+                <input type="text" id="new-c-tid" class="adm-input" placeholder="Address/UID">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <input type="number" id="new-c-user" class="adm-input" placeholder="User Rate">
+                    <input type="number" id="new-c-admin" class="adm-input" placeholder="Admin Rate">
+                </div>
+                <button onclick="addNewCoin()" class="adm-btn" style="background:#10b981; color:white;">ADD ASSET</button>
+            </div>
 
-        // Market List
-        db.ref('marketConfig').once('value', snap => {
-            let html = "";
-            snap.forEach(c => {
-                const v = c.val();
-                html += `
-                <div style="background:#fff; border:1px solid #e2e8f0; border-radius:15px; padding:12px; margin-bottom:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <b>💎 ${c.key}</b>
-                        <label class="adm-switch"><input type="checkbox" ${v.status?'checked':''} onchange="db.ref('marketConfig/${c.key}').update({status:this.checked})"><span class="adm-slider"></span></label>
-                    </div>
-                    <input type="text" class="adm-input" value="${v.transferId}" onchange="db.ref('marketConfig/${c.key}').update({transferId: this.value})" style="margin-top:8px;">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                        <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">USER</small><br><input type="number" value="${v.userRate}" onchange="db.ref('marketConfig/${c.key}').update({userRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
-                        <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">ADMIN</small><br><input type="number" value="${v.adminRate}" onchange="db.ref('marketConfig/${c.key}').update({adminRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
-                    </div>
-                    <button class="adm-btn" style="color:red; background:none; font-size:11px;" onclick="if(confirm('Remove coin?')) db.ref('marketConfig/${c.key}').remove()">REMOVE COIN</button>
-                </div>`;
-            });
-            document.getElementById('adm-market-config-list').innerHTML = html;
-        });
+            <h4 style="margin-bottom:15px;">💳 Payment Methods</h4>
+            <div id="adm-payment-list"></div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+                <input type="text" id="new-pay-name" class="adm-input" placeholder="New Method" style="margin:0;">
+                <button onclick="addNewPayment()" class="adm-btn" style="width:80px; background:#1e293b; color:white;">ADD</button>
+            </div>
 
-        // Links
-        db.ref('settings/links').once('value', s => {
-            if(s.val()) {
-                document.getElementById('adm-link-chan').value = s.val().channel || "";
-                document.getElementById('adm-link-help').value = s.val().help || "";
-            }
-        });
+            <h4 style="margin-top:25px; margin-bottom:15px;">🔗 Social Links</h4>
+            <input type="text" id="adm-link-chan" class="adm-input" placeholder="Channel Link">
+            <input type="text" id="adm-link-help" class="adm-input" placeholder="Support Link">
+            <button onclick="updateAdmLinks()" class="adm-btn" style="background:#2563eb; color:white;">UPDATE LINKS</button>
 
-        // Payments
-        db.ref('paymentMethods').once('value', s => {
-            let h = "";
-            s.forEach(p => {
-                h += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;">
-                    <span>${p.key}</span>
-                    <div style="display:flex; gap:12px; align-items:center;">
-                        <label class="adm-switch"><input type="checkbox" ${p.val().status?'checked':''} onchange="db.ref('paymentMethods/${p.key}').update({status:this.checked})"><span class="adm-slider"></span></label>
-                        <button style="border:none; color:red; background:none;" onclick="db.ref('paymentMethods/${p.key}').remove()">🗑️</button>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('adm-payment-list').innerHTML = h;
-        });
-    }
+            <h4 style="margin-top:25px; margin-bottom:15px;">🏆 Top Earners (Leaderboard)</h4>
+            <div id="adm-leaderboard-list" style="background:#f8fafc; border-radius:12px; padding:10px; max-height:200px; overflow-y:auto;"></div>
 
-    /* --- ADMIN ACTION HELPERS --- */
-    function addNewCoin() {
-        const n = document.getElementById('new-c-name').value, tid = document.getElementById('new-c-tid').value, ur = document.getElementById('new-c-user').value, ar = document.getElementById('new-c-admin').value;
-        if(n && tid && ur && ar) {
-            db.ref('marketConfig/'+n).set({ transferId: tid, userRate: parseFloat(ur), adminRate: parseFloat(ar), status: true }).then(() => {
-                alert("Coin Added!");
-                renderAdminData();
-            });
+            <button onclick="resetSalesStats()" class="adm-btn" style="background:#ef4444; color:white; margin-top:30px;">⚠️ RESET SALES STATS</button>
+        </div>
+    `;
+    // আপনার অরিজিনাল ডাটা ফেচ ফাংশনটি কল করা
+    fetchAdminSettingsData();
+}
+
+function fetchAdminSettingsData() {
+    // ১. লিডারবোর্ড লিস্ট (আপনার লজিক অনুযায়ী)
+    db.ref('leaderboard').on('value', s => {
+        let h = "";
+        s.forEach(u => {
+            const d = u.val();
+            h += `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid #eee;">
+                <div><b>@${d.user}</b><br><small style="color:#10b981">${parseFloat(d.totalAmount).toFixed(2)}৳</small></div>
+                <button style="border:none; color:#ef4444; background:none; font-weight:800; cursor:pointer;" onclick="if(confirm('Delete user?')) db.ref('leaderboard/${d.user}').remove()">DEL</button>
+            </div>`;
+        });
+        const lbArea = document.getElementById('adm-leaderboard-list');
+        if(lbArea) lbArea.innerHTML = h || "No Users";
+    });
+
+    // ২. মার্কেট লিস্ট (আপনার লজিক অনুযায়ী)
+    db.ref('marketConfig').on('value', snap => {
+        let html = "";
+        snap.forEach(c => {
+            const v = c.val();
+            html += `
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:15px; padding:12px; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b>💎 ${c.key}</b>
+                    <label class="adm-switch"><input type="checkbox" ${v.status?'checked':''} onchange="db.ref('marketConfig/${c.key}').update({status:this.checked})"><span class="adm-slider"></span></label>
+                </div>
+                <input type="text" class="adm-input" value="${v.transferId}" onchange="db.ref('marketConfig/${c.key}').update({transferId: this.value})" style="margin-top:8px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                    <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">USER</small><br><input type="number" value="${v.userRate}" onchange="db.ref('marketConfig/${c.key}').update({userRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
+                    <div style="background:#f8fafc; padding:5px; border-radius:8px; text-align:center;"><small style="font-size:8px;">ADMIN</small><br><input type="number" value="${v.adminRate}" onchange="db.ref('marketConfig/${c.key}').update({adminRate: parseFloat(this.value)})" style="width:100%; border:none; background:transparent; font-weight:800; text-align:center;"></div>
+                </div>
+                <button class="adm-btn" style="color:red; background:none; font-size:11px; margin-top:5px;" onclick="if(confirm('Remove?')) db.ref('marketConfig/${c.key}').remove()">REMOVE COIN</button>
+            </div>`;
+        });
+        const mcArea = document.getElementById('adm-market-config-list');
+        if(mcArea) mcArea.innerHTML = html;
+    });
+
+    // ৩. লিংক লোড
+    db.ref('settings/links').once('value', s => {
+        if(s.val()) {
+            if(document.getElementById('adm-link-chan')) document.getElementById('adm-link-chan').value = s.val().channel || "";
+            if(document.getElementById('adm-link-help')) document.getElementById('adm-link-help').value = s.val().help || "";
         }
-    }
+    });
 
-    function updateAdmLinks() {
-        db.ref('settings/links').set({
-            channel: document.getElementById('adm-link-chan').value,
-            help: document.getElementById('adm-link-help').value
-        }).then(() => alert("Links Updated!"));
-    }
-
-    function addNewPayment() {
-        const name = document.getElementById('new-pay-name').value;
-        if(name) db.ref('paymentMethods/'+name).set({status: true}).then(() => renderAdminData());
-    }
-
-    function updateOrderStatus(id, status, user, payable) {
-        db.ref('orders/'+id).update({status: status});
-        if(status === 'completed' && user) {
-            db.ref('leaderboard/'+user).once('value', sn => {
-                let data = sn.val() || { totalAmount: 0, user: user };
-                db.ref('leaderboard/'+user).update({ totalAmount: (parseFloat(data.totalAmount) + payable) });
-            });
-        }
-    }
-
-    function resetSalesStats() {
-        if(confirm("Are you sure? This will reset the visible sales total to 0.00৳")) {
-            db.ref('orders').once('value', s => {
-                let total = 0;
-                Object.values(s.val() || {}).forEach(o => { if(o.status === 'completed') total += parseFloat(o.payable || 0); });
-                db.ref('stats_reset').set({ resetAmount: total }).then(() => alert("Stats Reset!"));
-            });
-        }
-    }
+    // ৪. পেমেন্ট মেথড লোড
+    db.ref('paymentMethods').on('value', s => {
+        let h = "";
+        s.forEach(p => {
+            h += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee; align-items:center;">
+                <span>${p.key}</span>
+                <div style="display:flex; gap:12px; align-items:center;">
+                    <label class="adm-switch"><input type="checkbox" ${p.val().status?'checked':''} onchange="db.ref('paymentMethods/${p.key}').update({status:this.checked})"><span class="adm-slider"></span></label>
+                    <button style="border:none; color:red; background:none; cursor:pointer;" onclick="db.ref('paymentMethods/${p.key}').remove()">🗑️</button>
+                </div>
+            </div>`;
+        });
+        const pmArea = document.getElementById('adm-payment-list');
+        if(pmArea) pmArea.innerHTML = h;
+    });
+}
 	// App ready holei data fetch shuru korbe
 document.addEventListener('DOMContentLoaded', () => {
     fetchHistory();
