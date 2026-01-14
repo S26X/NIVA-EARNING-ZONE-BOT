@@ -778,7 +778,8 @@ function renderAdminData() {
 
                 if (shouldShow) {
                     const statusColor = o.status === 'pending' ? '#f59e0b' : (o.status === 'completed' ? '#10b981' : '#ef4444');
-                    html += `
+                    // Render function-er bhetore thik ei jaygatuku replace korun
+html += `
     <div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
         <div class="order-header">
             <b>@${o.user}</b>
@@ -791,11 +792,11 @@ function renderAdminData() {
             <div class="grid-item"><small>PAYOUT</small><b style="color:#10b981;">${o.payable}৳</b></div>
         </div>
 
-        <div onclick="copyToClipboard('${o.number}')" style="margin-top:12px; padding:10px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1; cursor:pointer; active:scale-95; transition:0.2s;">
-            <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">PAYMENT NUMBER (CLICK TO COPY)</small>
+        <div onclick="copyToClipboard('${o.number}')" style="margin-top:12px; padding:10px; background:#f8fafc; border-radius:12px; border:1px dashed #cbd5e1; cursor:pointer;">
+            <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">PAYMENT NUMBER (TAP TO COPY)</small>
             <b style="color:#2563eb; font-size:16px;">📱 ${o.number}</b>
-            <p style="margin:2px 0 0 0; font-size:9px; color:#94a3b8;">Tap to copy number</p>
         </div>
+
         <div style="margin-top:8px; padding-left:5px;">
             <small style="color:#64748b; display:block; font-size:10px; font-weight:800;">SENDER USERNAME</small>
             <b>👤 ${o.sender}</b>
@@ -812,32 +813,17 @@ function renderAdminData() {
 
 function copyToClipboard(text) {
     if (!text) return;
-    
-    // Modern Browser Copy API
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert("✅ Number Copied: " + text);
-        }).catch(err => {
-            // Fallback jodi modern api kaj na kore
-            fallbackCopyText(text);
-        });
-    } else {
-        fallbackCopyText(text);
-    }
-}
-
-function fallbackCopyText(text) {
-    const textArea = document.createElement("textarea");
-    textArea.value = text;
-    document.body.appendChild(textArea);
-    textArea.select();
+    const el = document.createElement('textarea');
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
     try {
         document.execCommand('copy');
         alert("✅ Number Copied: " + text);
     } catch (err) {
-        alert("❌ Failed to copy!");
+        console.error('Copy failed');
     }
-    document.body.removeChild(textArea);
+    document.body.removeChild(el);
 }
 
 function renderSettingsUI(container) {
