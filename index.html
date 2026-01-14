@@ -372,11 +372,28 @@
     }
 
     /* --- USER HELPERS --- */
-    function switchAdminTab(tab, el) {
-    adminActiveTab = tab;
-    document.querySelectorAll('.adm-tab').forEach(t => t.classList.remove('active'));
+    // Admin Tab Switching Logic
+function switchAdminTab(t, el) {
+    // ১. Active Tab Variable Update
+    adminActiveTab = t;
+
+    // ২. UI-te Active Class Change
+    document.querySelectorAll('.tab, .adm-tab').forEach(x => x.classList.remove('active'));
     el.classList.add('active');
-    renderAdminData();
+
+    // ৩. Dynamic Content Render
+    const listSection = document.getElementById('order-list-section');
+    const settingsSection = document.getElementById('settings-section');
+
+    if(t === 'settings') {
+        if(listSection) listSection.style.display = 'none';
+        if(settingsSection) settingsSection.style.display = 'block';
+        renderAdminData(); // Settings-er bhitore thaka data render korbe
+    } else {
+        if(settingsSection) settingsSection.style.display = 'none';
+        if(listSection) listSection.style.display = 'block';
+        renderAdminData(); // Pending/History data render korbe
+    }
 }
 
     function openOrderModal(name, rate, tid) {
@@ -497,38 +514,85 @@ function closeReviewModal() {
 }
 
     function fetchHistory() {
-        const user = tg.initDataUnsafe.user || { username: "guest" };
-        const uname = user.username || user.first_name || "guest";
-        db.ref('orders').orderByChild('user').equalTo(uname).on('value', s => {
-            let h = ""; let count = 0;
-            s.forEach(o => {
-                const d = o.val(); if(d.status === 'completed') count++;
-                const color = d.status==='pending'?'#f39c12':d.status==='completed'?'#2ecc71':'#e74c3c';
-                h += `<div class="action-card" style="flex-direction:column; align-items:flex-start; gap:8px;">
-                    <div style="display:flex; justify-content:space-between; width:100%;"><b>${d.amt} ${d.coin}</b> <span style="color:${color}; font-weight:900;">${d.status.toUpperCase()}</span></div>
-                    <small>Payable: ${d.payable}৳ | To: ${d.targetId}</small>
+    // Telegram user data check
+    const user = tg.initDataUnsafe.user || { username: "guest" };
+    const uname = user.username || user.first_name || "guest";
+    
+    // User-er username onujayi orders filter kora
+    db.ref('orders').orderByChild('user').equalTo(uname).on('value', s => {
+        let h = ""; 
+        let count = 0;
+        
+        s.forEach(o => {
+            const d = o.val(); 
+            if(d.status === 'completed') count++;
+            
+            // Status onujayi color set kora
+            const color = d.status === 'pending' ? '#f39c12' : (d.status === 'completed' ? '#2ecc71' : '#e74c3c');
+            
+            h += `<div class="action-card" style="flex-direction:column; align-items:flex-start; gap:8px; margin-bottom:10px;">
+                    <div style="display:flex; justify-content:space-between; width:100%;">
+                        <b>${d.amt} ${d.coin}</b> 
+                        <span style="color:${color}; font-weight:900;">${d.status.toUpperCase()}</span>
+                    </div>
+                    <small style="color:#64748b;">Payable: ${d.payable}৳ | To: ${d.targetId}</small>
                 </div>`;
-            });
-            document.getElementById('history-list-display').innerHTML = h || "<center>No History</center>";
-            document.getElementById('suc-count-display').innerText = count;
         });
-    }
+        
+        // UI-te history list ebong success count set kora
+        const historyContainer = document.getElementById('history-list-display');
+        if(historyContainer) historyContainer.innerHTML = h || "<center style='padding:20px; color:#94a3b8;'>No History Found</center>";
+        
+        const countDisplay = document.getElementById('suc-count-display');
+        if(countDisplay) countDisplay.innerText = count;
+    });
+}
 
     function fetchLeaderboard() {
-        db.ref('leaderboard').on('value', s => {
-            let h = ""; let arr = []; s.forEach(u => arr.push(u.val()));
-            arr.sort((a,b) => b.totalAmount - a.totalAmount).slice(0,15).forEach((u,i) => {
-                h += `<div class="action-card"><div><b>${i+1}. @${u.user}</b></div><b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b></div>`;
-            });
-            document.getElementById('rank-list-display').innerHTML = h || "<center>No Records</center>";
+    db.ref('leaderboard').on('value', s => {
+        let h = ""; 
+        let arr = []; 
+        
+        s.forEach(u => arr.push(u.val()));
+        
+        // Beshi taka theke kom taka onujayi sort kora
+        arr.sort((a,b) => b.totalAmount - a.totalAmount).slice(0,15).forEach((u, i) => {
+            h += `<div class="action-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:12px;">
+                    <div><b>${i+1}. @${u.user}</b></div>
+                    <b style="color:#22c55e;">${u.totalAmount.toFixed(2)}৳</b>
+                  </div>`;
         });
-    }
+        
+        const rankContainer = document.getElementById('rank-list-display');
+        if(rankContainer) rankContainer.innerHTML = h || "<center style='padding:20px; color:#94a3b8;'>No Records Yet</center>";
+    });
+}
 
     /* =========================================
        ADMIN PANEL LOGIC (ALL FEATURES ADDED)
        ========================================= */
-    function openAdminPanel() { document.getElementById('admin-master-ui').style.display = 'block'; }
-    function closeAdminPanel() { document.getElementById('admin-master-ui').style.display = 'none'; }
+    // --- SECTION CONTROL LOGIC ---
+
+function switchTab(id, el) {
+    // ১. Age shob gulo screen (Home, History, Rank) hide korbe
+    const screens = ['home-scr', 'history-scr', 'rank-scr'];
+    screens.forEach(s => {
+        const screenEl = document.getElementById(s);
+        if(screenEl) screenEl.style.display = 'none';
+    });
+
+    // ২. Click kora screen-ti show korbe
+    const target = document.getElementById(id);
+    if(target) target.style.display = 'block';
+
+    // ৩. Nav bar-er button-e active color dibe
+    document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+    if(el) el.classList.add('active');
+
+    // ৪. History ba Rank-e click korle data auto refresh korbe
+    if(id === 'history-scr') fetchHistory();
+    if(id === 'rank-scr') fetchLeaderboard();
+}
 
     function verifyAdminPin() {
         if(document.getElementById('adm-pin-input').value === "0957") {
@@ -736,6 +800,13 @@ function renderAdminData() {
             });
         }
     }
+	// App ready holei data fetch shuru korbe
+document.addEventListener('DOMContentLoaded', () => {
+    fetchHistory();
+    fetchLeaderboard();
+    // Jodi admin lock thake, tab-er initial state set kora
+    adminActiveTab = 'pending';
+});
 </script>
 </body>
 </html>
