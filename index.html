@@ -61,34 +61,67 @@
         .admin-entry-btn { width: 100%; padding: 18px; background: #ef4444; color: white; border: none; border-radius: 22px; font-weight: 900; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); font-size: 14px; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
 
-        /* =========================================
-           [SECTION 2] ADMIN PANEL STYLES
+       /* =========================================
+           [SECTION 2] UPDATED MODERN ADMIN UI
            ========================================= */
         #admin-master-ui { position: fixed; inset: 0; background: #f8fafc; z-index: 100000; display: none; overflow-y: auto; font-family: 'Plus Jakarta Sans', sans-serif; }
         #admin-lock-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 100001; flex-direction: column; color: white; }
         
         .adm-container { max-width: 500px; margin: 0 auto; padding: 15px; } 
-        .adm-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-        .adm-stat-box { background: white; padding: 12px; border-radius: 15px; border: 1px solid #e2e8f0; text-align: center; }
-        .adm-stat-box small { font-weight: 800; color: #64748b; font-size: 9px; display: block; }
-        .adm-stat-box h3 { margin: 5px 0 0; font-size: 16px; }
 
-        .adm-main-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #e2e8f0; } 
-        .adm-tab-menu { display: flex; background: #f1f5f9; border-radius: 12px; padding: 4px; margin-bottom: 12px; gap: 4px; overflow-x: auto; } 
-        .adm-tab { flex: 1; text-align: center; padding: 10px 5px; font-size: 10px; font-weight: 800; cursor: pointer; border-radius: 10px; color: #64748b; } 
-        .adm-tab.active { background: #fff; color: var(--p-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.05); } 
+        /* Statistics Row - (Total User Sorano Hoyeche) */
+        .adm-stats-row { display: block; margin-bottom: 15px; }
+        .adm-stat-box { 
+            background: white; padding: 20px; border-radius: 20px; 
+            border: 1px solid #e2e8f0; text-align: center; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02); 
+        }
+        .adm-stat-box small { font-weight: 800; color: #64748b; font-size: 10px; display: block; text-transform: uppercase; letter-spacing: 1px;}
+        .adm-stat-box h3 { margin: 5px 0 0; font-size: 28px; color: #1e293b; }
 
-        .adm-order-box { position: relative; border: 1px solid #e2e8f0; border-radius: 18px; padding: 12px; margin-bottom: 10px; background: #fff; border-left: 5px solid var(--p-blue); } 
+        /* Vertical Tab Menu - (Ektar niche arekti) */
+        .adm-tab-menu { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; } 
+        .adm-tab { 
+            background: white; padding: 16px 20px; font-size: 14px; 
+            font-weight: 800; cursor: pointer; border-radius: 18px; 
+            color: #64748b; border: 1px solid #e2e8f0;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: 0.3s;
+        } 
+        .adm-tab.active { 
+            background: #fff; color: #2563eb; border-color: #2563eb; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08); 
+        }
+        .adm-tab.active::after { content: "❯"; font-size: 12px; }
+
+        /* Order Card - (Grid Design Exactly Like Photo) */
+        .adm-order-box { 
+            background: white; border-radius: 20px; padding: 18px; 
+            margin-bottom: 15px; border: 1px solid #f1f5f9; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.02);
+            position: relative; overflow: hidden;
+        }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .order-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .grid-item { background: #f8fafc; padding: 12px; border-radius: 15px; border: 1px solid #f1f5f9; }
+        .grid-item small { display: block; color: #94a3b8; font-size: 9px; font-weight: 800; text-transform: uppercase; margin-bottom: 3px; }
+        .grid-item b { font-size: 11px; color: #1e293b; }
+
+        .status-badge { font-size: 10px; font-weight: 900; padding: 5px 12px; border-radius: 10px; text-transform: uppercase; }
+
+        /* Settings & Forms */
+        .adm-input { width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 10px; font-size: 13px; background: #fcfcfc; }
+        .adm-btn { border: none; padding: 12px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
+        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f8fafc; border-radius: 15px; margin-bottom: 8px; border: 1px solid #f1f5f9; }
+
+        /* Switches */
         .adm-switch { position: relative; display: inline-block; width: 34px; height: 18px; } 
         .adm-switch input { opacity: 0; width: 0; height: 0; } 
         .adm-slider { position: absolute; inset: 0; background-color: #e2e8f0; border-radius: 34px; transition: .4s; }
         .adm-slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 2px; bottom: 2px; background-color: white; border-radius: 50%; transition: .4s; }
         input:checked + .adm-slider { background-color: #10b981; }
         input:checked + .adm-slider:before { transform: translateX(16px); }
-
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f1f5f9; }
-        .adm-btn { border: none; padding: 10px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 5px; }
-        .adm-input { width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -223,25 +256,21 @@
         </div>
 
         <div class="adm-container">
-            <div class="adm-stats-row">
-                <div class="adm-stat-box" style="grid-column: span 2; display:flex; justify-content:space-between; align-items:center;">
-                    <div style="text-align:left;"><small>TOTAL SALES</small><h3 id="adm-display-sales">0.00৳</h3></div>
-                    <button onclick="resetSalesStats()" style="background:none; border:none; font-size:20px;">🧹</button>
-                </div>
-                <div class="adm-stat-box">
-                    <small>PENDING</small>
-                    <h3 id="adm-display-pending" style="color:#f59e0b;">0</h3>
-                </div>
-            </div>
+    <div class="adm-stats-row">
+        <div class="adm-stat-box">
+            <small>Total Completed Sales</small>
+            <h3 id="adm-total-sales">0.00৳</h3>
+        </div>
+    </div>
 
-            <div class="adm-main-card">
-                <div class="adm-tab-menu">
-                    <div class="adm-tab active" onclick="switchAdminTab('pending', this)">PENDING</div>
-                    <div class="adm-tab" onclick="switchAdminTab('completed', this)">APPROVED</div>
-                    <div class="adm-tab" onclick="switchAdminTab('settings', this)">SETTINGS</div>
-                </div>
-                <div id="admin-dynamic-content"></div>
-            </div>
+    <div class="adm-tab-menu">
+        <div class="adm-tab active" onclick="switchAdminTab('pending', this)">🕒 PENDING</div>
+        <div class="adm-tab" onclick="switchAdminTab('history', this)">📜 HISTORY</div>
+        <div class="adm-tab" onclick="switchAdminTab('settings', this)">⚙️ SETTINGS</div>
+    </div>
+
+    <div id="admin-dynamic-content"></div>
+</div>
         </div>
     </div>
 </div>
@@ -569,19 +598,40 @@ function closeReviewModal() {
                 let html = "";
                 Object.values(orders).reverse().forEach(o => {
                     if(o.status === adminActiveTab) {
-                        html += `
-                        <div class="adm-order-box" style="border-left-color: ${adminActiveTab==='pending'?'#f59e0b':'#10b981'}">
-                            <div style="display:flex; justify-content:space-between;"><b>@${o.user}</b> <small>#${o.id.toString().slice(-4)}</small></div>
-                            <div style="font-size:11px; margin:5px 0;">Item: ${o.amt} ${o.coin} | Pay: ${o.payable}৳</div>
-                            <div style="font-size:11px; color:#64748b;">Method: ${o.method} (${o.number}) | Sender: ${o.sender}</div>
-                            <div style="display:flex; gap:5px; margin-top:10px;">
-                                ${adminActiveTab === 'pending' ? `
-                                <button onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:2; background:#10b981; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">APPROVE</button>
-                                <button onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:10px; border-radius:10px; font-weight:800;">REJECT</button>
-                                ` : ''}
-                                <button onclick="if(confirm('Delete order?')) db.ref('orders/${o.id}').remove()" style="background:#f1f5f9; border:none; padding:10px; border-radius:10px;">🗑️</button>
-                            </div>
-                        </div>`;
+                       html += `
+<div class="adm-order-box" style="border-left: 6px solid ${statusColor}">
+    <div class="order-header">
+        <b style="font-size: 16px; color:#1e293b;">@${o.user}</b>
+        <span class="status-badge" style="background:${statusColor}15; color:${statusColor};">${o.status.toUpperCase()}</span>
+    </div>
+
+    <div class="order-grid">
+        <div class="grid-item">
+            <small>Pay To</small>
+            <b>${o.number} (${o.method})</b>
+        </div>
+        <div class="grid-item">
+            <small>Asset / Coin</small>
+            <b>${o.amt} ${o.coin}</b>
+        </div>
+        <div class="grid-item">
+            <small>Sender Info</small>
+            <b>${o.sender}</b>
+        </div>
+        <div class="grid-item">
+            <small>Payout Amount</small>
+            <b style="color:#10b981;">${o.payable}৳</b>
+        </div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+        ${o.status === 'pending' ? `
+            <button class="btn-approve" onclick="updateOrderStatus('${o.id}','completed','${o.user}',${o.payable})" style="flex:2; background:#10b981; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">APPROVE</button>
+            <button class="btn-reject" onclick="updateOrderStatus('${o.id}','rejected')" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:12px; font-weight:800; cursor:pointer;">REJECT</button>
+        ` : ''}
+        <button onclick="if(confirm('Delete?')) db.ref('orders/${o.id}').remove().then(()=>renderAdminData())" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; color:#64748b; font-weight:800; cursor:pointer;">🗑️</button>
+    </div>
+</div>`;
                     }
                 });
                 area.innerHTML = html || "<center style='padding:30px; color:#94a3b8;'>No Orders Found</center>";
