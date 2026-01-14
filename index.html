@@ -137,24 +137,26 @@
 <div id="user-app-interface" style="display:none;">
     <a href="#" id="help-link" class="help-btn" target="_blank">🎧</a>
     
-    <div class="profile-card">
-        <img src="" id="user-pfp" class="user-avatar">
-        <div style="flex:1; margin-left:12px;">
-            <h3 id="user-display-name" style="margin:0;">User</h3>
-            <p id="user-display-tag" style="margin:0; font-size:12px; opacity:0.8;">@username</p>
-        </div>
-        <div style="background:rgba(255,255,255,0.1); padding:8px 12px; border-radius:15px; text-align:center;">
-            <small style="font-size:8px; font-weight:900; display:block;">SUCCESS</small>
-            <b id="suc-count-display">0</b>
-        </div>
+	
+	<div class="profile-card">
+    <img src="" id="user-pfp" class="user-avatar">
+    <div style="flex:1; margin-left:12px;">
+        <h3 id="user-display-name" style="margin:0;">User</h3>
+        <p id="user-display-tag" style="margin:0; font-size:12px; opacity:0.8;">@username</p>
     </div>
-
-    <div id="admin-shortcut" style="display:none; position:fixed; bottom:80px; right:20px; z-index:999;">
-    <button onclick="openAdminPanel()" style="background:#2563eb; color:white; border:none; padding:12px 20px; border-radius:50px; font-weight:800; box-shadow:0 4px 15px rgba(37,99,235,0.4);">
-        🛡️ Admin Panel
-    </button>
+    <div style="background:rgba(255,255,255,0.1); padding:8px 12px; border-radius:15px; text-align:center;">
+        <small style="font-size:8px; font-weight:900; display:block;">SUCCESS</small>
+        <b id="suc-count-display">0</b>
+    </div>
 </div>
 
+<div id="admin-shortcut" style="display:none; margin: 15px 5px;">
+    <button onclick="openAdminPanel()" style="width:100%; padding:16px; background:#2563eb; color:white; border:none; border-radius:20px; font-weight:800; font-size:14px; box-shadow:0 10px 20px rgba(37, 99, 235, 0.2);">
+        🛡️ Access Admin Dashboard
+    </button>
+</div>
+	
+	
 <div id="admin-master-ui">
     <button onclick="closeAdminPanel()" style="position: fixed; top: 20px; right: 20px; z-index: 100002; background: #ef4444; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: 800;">CLOSE ✖</button>
 
@@ -195,7 +197,7 @@
         </div>
     </div>
 </div>
-    <button onclick="closeAdminPanel()" style="position:absolute; top:20px; right:20px;">Close ✖</button>
+    
 </div>
 
     <div id="home-scr">
@@ -682,43 +684,27 @@ function switchTab(id, el) {
 
 /* --- ADMIN PANEL INTERFACE CONTROL --- */
 
+// Admin Panel Open Korar Function
 function openAdminPanel() {
-    // 1. Main Admin UI container khola
     const adminUI = document.getElementById('admin-master-ui');
+    const lockScreen = document.getElementById('admin-lock-screen');
+    const dashboardView = document.getElementById('admin-dashboard-view');
+
     if (adminUI) {
-        adminUI.style.display = 'block'; // Interface show korbe
+        adminUI.style.display = 'block';
+        // PIN screen skip kore sorasori dashboard show kora
+        if(lockScreen) lockScreen.style.display = 'none'; 
+        if(dashboardView) dashboardView.style.display = 'block';
         
-        // 2. Initial state: Lock screen dekhabe, Dashboard hide thakbe
-        document.getElementById('admin-lock-screen').style.display = 'flex';
-        const dashboard = document.getElementById('admin-dashboard-view');
-        if(dashboard) dashboard.style.display = 'none';
-        
-        // 3. Admin data sync shuru kora
-        startAdminEngine(); 
-    } else {
-        alert("Error: admin-master-ui container khuje pauya jachhe na!");
-    }
-}
-
-function closeAdminPanel() {
-    const adminUI = document.getElementById('admin-master-ui');
-    if (adminUI) adminUI.style.display = 'none';
-}
-
-// PIN verify houar por dashboard show kora
-function verifyAdminPin() {
-    const pin = document.getElementById('adm-pin-input').value;
-    if(pin === "0957") { // Apnar pin
-        document.getElementById('admin-lock-screen').style.display = 'none';
-        const dashboard = document.getElementById('admin-dashboard-view');
-        if(dashboard) dashboard.style.display = 'block';
-        
-        // Default tab set kora
+        // Default vabe pending orders load hobe
         adminActiveTab = 'pending';
-        renderAdminData();
-    } else { 
-        alert("Wrong PIN"); 
+        renderAdminData(); 
     }
+}
+
+// Admin UI Close Korar Function
+function closeAdminPanel() {
+    document.getElementById('admin-master-ui').style.display = 'none';
 }
 
    function startAdminEngine() {
