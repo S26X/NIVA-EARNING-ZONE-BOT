@@ -356,8 +356,10 @@
     <div class="adm-stats-row" style="display: block; margin-bottom: 15px;">
         <div class="adm-stat-box" style="padding: 20px; border-bottom: 4px solid #f59e0b; text-align: center;">
             <small style="color: #64748b; font-weight: 800; text-transform: uppercase; font-size: 10px;">Total Pending Orders</small>
-            <h3 id="adm-total-pending" style="color: #f59e0b; font-size: 32px; margin: 10px 0 0;">0</h3>
-        </div>
+           <div class="adm-stat-box">
+        <small>Pending Orders</small>
+        <h3 id="adm-total-pending">0</h3>
+    </div>
     </div>
 
     <div class="adm-tab-menu" style="display: flex; background: #f1f5f9; border-radius: 15px; padding: 5px; gap: 5px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
@@ -787,30 +789,31 @@ function closeAdminPanel() {
 }
 
    function startAdminEngine() {
-    // Real-time Orders Listener
+    // Orders Listener
     db.ref('orders').on('value', snap => {
         const orders = snap.val() || {};
-        let counts = { pending: 0, completed: 0, rejected: 0 };
+        let pCount = 0;
         
+        // সব অর্ডার থেকে pending খুঁজে বের করা
         Object.values(orders).forEach(o => {
-            if(counts[o.status] !== undefined) counts[o.status]++;
+            if(o.status === 'pending') pCount++;
         });
 
-        // Top Stat Update (Pending only)
-        document.getElementById('adm-display-pending').innerText = counts.pending;
+        // সরাসরি সংখ্যা বসানো
+        const el = document.getElementById('adm-display-pending');
+        if(el) el.innerText = pCount;
         
-        // Tab Counters Update
-        document.getElementById('count-pending').innerText = counts.pending;
-        document.getElementById('count-completed').innerText = counts.completed;
-        document.getElementById('count-rejected').innerText = counts.rejected;
-        
-        // Instant List Refresh
-        if(adminActiveTab !== 'settings') renderAdminData();
+        // লিস্ট আপডেট
+        if(typeof adminActiveTab !== 'undefined' && adminActiveTab !== 'settings') {
+            renderAdminData();
+        }
     });
 
-    // Leaderboard/User count listener (Optional)
-    db.ref('leaderboard').on('value', s => {
-        // Users counting logic ekhane thakbe kintu upore display hobe na
+    // Users Listener
+    db.ref('users').on('value', snap => {
+        const uCount = snap.numChildren() || 0;
+        const uEl = document.getElementById('adm-display-users');
+        if(uEl) uEl.innerText = uCount;
     });
 }
 
