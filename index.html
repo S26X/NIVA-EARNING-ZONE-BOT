@@ -229,7 +229,7 @@
             <div class="adm-stats-row">
                 <div class="adm-stat-box">
                     <small>Pending Orders</small>
-                    <h3 id="adm-display-pending">0</h3>
+                    <h3 id="adm-total-pending">0</h3>
                 </div>
             </div>
 
@@ -336,59 +336,7 @@
     </div>
 </div>
 
-<div id="admin-master-ui">
-    <div id="admin-lock-screen">
-        <div style="background:white; padding:30px; border-radius:25px; text-align:center; width:300px; color:#1e293b;">
-            <h3 style="margin-bottom:20px;">Admin Access</h3>
-            <input type="password" id="adm-pin-input" placeholder="ENTER PIN" style="width:100%; padding:15px; text-align:center; border-radius:15px; border:1.5px solid #ddd; margin-bottom:15px; font-weight:900;">
-            <button onclick="verifyAdminPin()" style="width:100%; background:#2563eb; color:white; padding:15px; border:none; border-radius:15px; font-weight:800;">UNLOCK PANEL</button>
-            <button onclick="closeAdminPanel()" style="margin-top:10px; background:none; border:none; color:#64748b; font-weight:700;">Back to App</button>
-        </div>
-    </div>
 
-    <div id="admin-dashboard-view" style="display:none;">
-        <div style="padding:20px; display:flex; justify-content:space-between; align-items:center; background:white; border-bottom:1.5px solid #e2e8f0; position:sticky; top:0; z-index:100;">
-            <h2 style="margin:0; color:#ef4444; font-weight:900; font-size:18px;">ADMIN PANEL</h2>
-            <button onclick="closeAdminPanel()" style="background:#f1f5f9; border:none; padding:10px 15px; border-radius:12px; font-weight:800;">EXIT</button>
-        </div>
-
- <div class="adm-container">
-    <div class="adm-stats-row" style="display: block; margin-bottom: 15px;">
-        <div class="adm-stat-box" style="padding: 20px; border-bottom: 4px solid #f59e0b; text-align: center;">
-            <small style="color: #64748b; font-weight: 800; text-transform: uppercase; font-size: 10px;">Total Pending Orders</small>
-           <div class="adm-stat-box">
-        <small>Pending Orders</small>
-        <h3 id="adm-total-pending">0</h3>
-    </div>
-    </div>
-
-    <div class="adm-tab-menu" style="display: flex; background: #f1f5f9; border-radius: 15px; padding: 5px; gap: 5px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
-        <div class="adm-tab active" onclick="filterTab('pending', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
-            Pending <span id="count-pending" style="background: #f59e0b; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
-        </div>
-        <div class="adm-tab" onclick="filterTab('completed', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
-            Approved <span id="count-completed" style="background: #10b981; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
-        </div>
-        <div class="adm-tab" onclick="filterTab('rejected', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
-            Rejected <span id="count-rejected" style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 8px; font-size: 9px; margin-left: 4px;">0</span>
-        </div>
-        <div class="adm-tab" onclick="filterTab('settings', this)" style="flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 12px; font-weight: 800; font-size: 11px;">
-            Settings
-        </div>
-    </div>
-
-    <div id="order-list-section">
-        <div id="order-list"></div>
-    </div>
-</div>
-
-        <div id="settings-section" style="display:none;">
-             </div>
-    </div> 
-</div>
-        </div>
-    </div>
-</div>
 
 <script>
     /* =========================================
