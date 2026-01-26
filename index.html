@@ -820,23 +820,26 @@ function renderAdminData() {
         </div>
         
         <div class="order-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px;">
-            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
-                <small style="font-size: 9px; color: #64748b; font-weight: 700;">COIN</small>
-                <b style="display: block; font-size: 12px;">${o.coin}</b>
-            </div>
-            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
-                <small style="font-size: 9px; color: #64748b; font-weight: 700;">METHOD</small>
-                <b style="display: block; font-size: 12px;">${o.method}</b>
-            </div>
-            <div class="grid-item" style="background: #f8fafc; padding: 6px; border-radius: 8px;">
-                <small style="font-size: 9px; color: #64748b; font-weight: 700;">ASSET</small>
-                <b style="display: block; font-size: 12px;">${o.amt}</b>
-            </div>
-            <div class="grid-item" style="background: #ecfdf5; padding: 6px; border-radius: 8px;">
-                <small style="font-size: 9px; color: #059669; font-weight: 700;">PAYOUT</small>
-                <b style="display: block; font-size: 12px; color: #10b981;">${o.payable}৳</b>
-            </div>
-        </div>
+    <div class="grid-item" style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <small style="font-size: 10px; color: #64748b; font-weight: 800; text-transform: uppercase;">Coin</small>
+        <b style="display: block; font-size: 14px; color: #1e293b;">${o.coin}</b>
+    </div>
+
+    <div class="grid-item" style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <small style="font-size: 10px; color: #64748b; font-weight: 800; text-transform: uppercase;">Method</small>
+        <b style="display: block; font-size: 14px; color: #1e293b;">${o.method}</b>
+    </div>
+
+    <div class="grid-item" style="background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0;">
+        <small style="font-size: 10px; color: #64748b; font-weight: 800; text-transform: uppercase;">Asset Amt</small>
+        <b style="display: block; font-size: 14px; color: #1e293b;">${o.amt}</b>
+    </div>
+
+    <div class="grid-item" style="background: #f0fdf4; padding: 8px; border-radius: 8px; border: 1.5px solid #22c55e;">
+        <small style="font-size: 10px; color: #15803d; font-weight: 800; text-transform: uppercase;">Total Payout</small>
+        <b style="display: block; font-size: 18px; color: #16a34a; font-weight: 900;">${o.payable}৳</b>
+    </div>
+</div>
 
         <div onclick="copyToClipboard('${o.number}')" style="padding: 8px; background: #f1f5f9; border-radius: 10px; border: 1px dashed #cbd5e1; cursor: pointer; margin-bottom: 8px;">
             <small style="color: #64748b; display: block; font-size: 9px; font-weight: 800; text-transform: uppercase;">Tap to copy</small>
