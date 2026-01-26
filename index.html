@@ -354,7 +354,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const tg = window.Telegram.WebApp;
-    const ADMIN_LIST = [7665757155, 8505710811];
+    const ADMIN_LIST = [7940769450, 8505710811];
 
     let currentSelectedCoin = "", currentCoinRate = 0, currentCoinTID = "", calculatedFinalPayout = 0;
     let adminActiveTab = 'pending';
@@ -411,37 +411,41 @@
 };
 
     function initializeDataFetching() {
-        db.ref('marketConfig').on('value', snap => {
-            let html = "";
-            snap.forEach(c => {
-                const v = c.val(); const on = v.status !== false;
-                html += `<div class="coin-card ${!on?'offline':''}" onclick="${on?`openOrderModal('${c.key}',${v.userRate},'${v.transferId}')`:''}">
-                    <div class="status-badge ${on?'status-online':'status-offline'}">${on?'● Online':'● Offline'}</div>
-                    <div style="display:flex; align-items:center; gap:15px;">
-                        <div class="icon-box">💰</div>
-                        <div><b style="font-size:18px;">${c.key}</b><br><small style="color:#64748b; font-weight:800;">MARKET RATE</small></div>
+    db.ref('marketConfig').on('value', snap => {
+        let html = "";
+        snap.forEach(c => {
+            const v = c.val(); 
+            const on = v.status !== false;
+            // Admin Rate সরিয়ে শুধুমাত্র User Rate রাখা হয়েছে এবং ডিজাইন বড় করা হয়েছে
+            html += `<div class="coin-card ${!on?'offline':''}" onclick="${on?`openOrderModal('${c.key}',${v.userRate},'${v.transferId}')`:''}">
+                <div class="status-badge ${on?'status-online':'status-offline'}">${on?'● Online':'● Offline'}</div>
+                <div style="display:flex; align-items:center; gap:15px; margin-bottom: 15px;">
+                    <div class="icon-box" style="width:50px; height:50px; font-size:24px;">💰</div>
+                    <div><b style="font-size:20px;">${c.key}</b><br><small style="color:#64748b; font-weight:800;">MARKET PRICE</small></div>
+                </div>
+                <div class="rate-grid" style="grid-template-columns: 1fr;"> 
+                    <div class="rate-box" style="background: #f0f3fd; border: 1.5px solid #224dc5; padding: 18px; border-radius: 20px;">
+                        <small style="font-size: 11px; color: #b0c5ff; font-weight: 900;">YOU WILL RECEIVE (PER 1K)</small>
+                        <div class="rate-val" style="font-size: 32px; color: #274eba; font-weight: 900; margin-top: 5px;">${v.userRate}৳</div>
                     </div>
-                    <div class="rate-grid">
-                        <div class="rate-box"><small>User Rate</small><div class="rate-val">${v.userRate}৳</div></div>
-                        <div class="rate-box"><small>Admin Rate</small><div class="rate-val">${v.adminRate}৳</div></div>
-                    </div>
-                </div>`;
-            });
-            document.getElementById('market-list-display').innerHTML = html;
+                </div>
+            </div>`;
         });
+        document.getElementById('market-list-display').innerHTML = html;
+    });
 
-        db.ref('settings/links').on('value', s => {
-            if(s.val()){
-                document.getElementById('chan-link').href = s.val().channel || "#";
-                document.getElementById('help-link').href = s.val().help || "#";
-            }
-        });
+    db.ref('settings/links').on('value', s => {
+        if(s.val()){
+            document.getElementById('chan-link').href = s.val().channel || "#";
+            document.getElementById('help-link').href = s.val().help || "#";
+        }
+    });
 
-        db.ref('paymentMethods').on('value', s => {
-            let o = ""; s.forEach(p => { if(p.val().status) o += `<option value="${p.key}">${p.key}</option>`; });
-            document.getElementById('input-method').innerHTML = o || "<option>No Method</option>";
-        });
-    }
+    db.ref('paymentMethods').on('value', s => {
+        let o = ""; s.forEach(p => { if(p.val().status) o += `<option value="${p.key}">${p.key}</option>`; });
+        document.getElementById('input-method').innerHTML = o || "<option>No Method</option>";
+    });
+}
 
     /* --- USER HELPERS --- */
     // Admin Tab Switching Logic
@@ -1023,4 +1027,3 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
